@@ -1,13 +1,19 @@
 {% style %}
   .scroll-to-top-btn-{{ section.id }} {
-    --offset-x: {{ section.settings.offset_x }}px;
-    --offset-y: {{ section.settings.offset_y }}px;
+    --offset-x: {{ section.settings.offset_x | divided_by: 10.0 }}rem;
+    --offset-y: {{ section.settings.offset_y | divided_by: 10.0 }}rem;
+  }
+  @media screen and (max-width: 749px) {
+    .scroll-to-top-btn-{{ section.id }} {
+      --offset-x: {{ section.settings.offset_x | times: 0.75 | divided_by: 10.0 }}rem;
+      --offset-y: {{ section.settings.offset_y | times: 0.75 | divided_by: 10.0 }}rem;
+    }
   }
 {% endstyle %}
 
 {% if section.settings.enable_scroll_btn %}
   <button
-    class="scroll-to-top-btn scroll-to-top-btn-{{ section.settings.position }} scroll-to-top-btn-{{ section.id }} color-{{ section.settings.color_scheme }}"
+    class="floating-btn scroll-to-top-btn scroll-to-top-btn-{{ section.settings.position }} scroll-to-top-btn-{{ section.id }} color-{{ section.settings.color_scheme }}"
     onclick="handleScrollToTop()"
     {% unless section.settings.display_after == 0 %}
       style="display:none;"
@@ -28,48 +34,21 @@
   </button>
   
   <script>
-    var stickyATCAfterScroll = false;
-    document.addEventListener('DOMContentLoaded', function() {
-      const stickyATC = document.querySelector('.sticky-atc');
-      if (stickyATC && !(stickyATC.classList.contains('sticky-atc--after-scroll'))) {
-        // always active sticky atc
-        document.querySelector('.scroll-to-top-btn').style.bottom = ({{ section.settings.offset_y}} + stickyATC.clientHeight) + 'px';
-        return;
-      } else if (stickyATC && stickyATC.classList.contains('sticky-atc--after-scroll')) {
-        // sticky atc after scroll
-        stickyATCAfterScroll = true;
-        checkForActiveStickyATC();
-        return;
-      }
-    })
-    function checkForActiveStickyATC() {
-      const stickyATC = document.querySelector('.sticky-atc--after-scroll');
-      if (!stickyATC) return;
-      if (stickyATC.classList.contains('sticky-atc--active')) {
-          document.querySelector('.scroll-to-top-btn').style.bottom = ({{ section.settings.offset_y}} + stickyATC.clientHeight) + 'px';
-      } else {
-        document.querySelector('.scroll-to-top-btn').style.bottom = {{ section.settings.offset_y}} + 'px';
-      }
-    }
-  
     {% unless section.settings.display_after == 0 %}
       function checkBtnVisibility() {
         const scrollToTopBtn = document.querySelector('.scroll-to-top-btn');
-        if (window.scrollY > {{ section.settings.display_after }}) {
-          scrollToTopBtn.style.display = '';
-        } else {
-          scrollToTopBtn.style.display = 'none';
+        if (scrollToTopBtn) {
+          if (window.scrollY > {{ section.settings.display_after }}) {
+            scrollToTopBtn.style.display = '';
+          } else {
+            scrollToTopBtn.style.display = 'none';
+          }
         }
       }
       checkBtnVisibility()
+    
+      window.addEventListener('scroll', checkBtnVisibility)
     {% endunless %}
-  
-    window.addEventListener('scroll', function() {
-      {% unless section.settings.display_after == 0 %}
-        checkBtnVisibility();
-      {% endunless %}
-      if (stickyATCAfterScroll) checkForActiveStickyATC();
-    })
   
     function handleScrollToTop() {
       window.scrollTo({

@@ -1,32 +1,33 @@
-{% assign goal_threshold = settings.cart_progress_threshold | times: 100.00 %}
-{% assign goal_diff = goal_threshold | minus: cart.items_subtotal_price | money_without_trailing_zeros %}
-{% assign goal_progress = cart.items_subtotal_price | divided_by: goal_threshold | times: 100.00 %}
-{% assign goal_reached = false %}
+{% liquid
+  assign goal = block.settings.goal | times: 100.00
+  assign goal_progress = cart.items_subtotal_price | divided_by: goal | times: 100.00
+  assign goal_reached = false
 
-{% capture goal_diff_html %}
-    <span>{{ goal_diff }}</span>
+  if goal_progress > 100.00
+    assign goal_reached = true
+    assign goal_progress = 100
+  endif
+%}
+
+{% capture goal_difference_money %}
+  <span>{{ goal | minus: cart.items_subtotal_price | money_without_trailing_zeros }}</span>
 {% endcapture %}
-{% assign cart_progress_message = settings.cart_progress_message | replace: '[amount]', goal_diff_html %}
-{% assign cart_progress_success_message = settings.cart_progress_success_message %}
 
-{% if goal_progress > 100.00 %}
-  {% assign goal_reached = true %}
-  {% assign goal_progress = 100 %}
-{% endif %}
-
-<div class="cart-progress">
+<div class="cart-progress accent-color-{{ block.settings.accent_color }}" style="--margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;--margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;" {{ block.shopify_attributes }}>
   <p class="cart-progress__text">
     {% if goal_reached == false %}
-      {{ cart_progress_message }}
+      {{ block.settings.progress_message | replace: '[amount]', goal_difference_money }}
     {% else %}
-      {{ cart_progress_success_message }}
+      {{ block.settings.success_message }}
     {% endif %}
   </p>
   <div class="cart-progress__bar">
     <div class="cart-progress__bar__progress" style="width: {{ goal_progress }}%;">
       <div class="cart-progress__bar__badge">
-        {%- unless settings.cart_progress_icon == 'none' -%}
-          {% render 'icon-accordion', icon: settings.cart_progress_icon %}
+        {%- unless block.settings.icon == 'none' -%}
+          <span class="material-symbols-outlined{% if block.settings.icon_filled %} filled{% endif %}">
+            {{ block.settings.icon | strip | downcase | replace: ' ', '_' }}
+          </span>
         {%- endunless -%}
       </div>
     </div>

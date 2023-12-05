@@ -1,23 +1,4 @@
-{{ 'component-reviews.css' | asset_url | stylesheet_tag }}
-{{ 'section-image-banner.css' | asset_url | stylesheet_tag }}
-{{ 'component-slider.css' | asset_url | stylesheet_tag }}
-{{ 'component-slideshow.css' | asset_url | stylesheet_tag }}
-
-{% style %}
-  .section-{{ section.id }}-padding .review-items-container {
-    padding-top: {{ block.settings.padding_top | times: 0.75 | round: 0 }}px;
-    padding-bottom: {{ block.settings.padding_bottom | times: 0.75 | round: 0 }}px;
-  }
-
-  @media screen and (min-width: 750px) {
-    .section-{{ section.id }}-padding .review-items-container {
-      padding-top: {{ block.settings.padding_top }}px;
-      padding-bottom: {{ block.settings.padding_bottom }}px;
-    }
-  }
-{% endstyle %}
-
-<div class="review-items-container">
+<div class="review-items-container" {{ block.shopify_attributes }} style="--star-color:{{ block.settings.star_color }};--margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;--margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;" {{ block.shopify_attributes }}>
   {%- assign items_count = 0 -%}
   {%- if block.settings.text_1 != blank -%}
     {%- assign items_count = items_count | plus: 1 -%}
@@ -47,7 +28,6 @@
         <div
           class="slideshow__slide grid__item grid--1-col slider__slide"
           id="Slide-{{ section.id }}-1"
-          {{ block.shopify_attributes }}
           role="group"
           aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
           aria-label="1 {{ 'general.slider.of' | t }} 3"
@@ -89,7 +69,6 @@
         <div
           class="slideshow__slide grid__item grid--1-col slider__slide"
           id="Slide-{{ section.id }}-2"
-          {{ block.shopify_attributes }}
           role="group"
           aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
           aria-label="2 {{ 'general.slider.of' | t }} 3"
@@ -132,7 +111,6 @@
         <div
           class="slideshow__slide grid__item grid--1-col slider__slide"
           id="Slide-{{ section.id }}-1"
-          {{ block.shopify_attributes }}
           role="group"
           aria-roledescription="{{ 'sections.slideshow.slide' | t }}"
           aria-label="3 {{ 'general.slider.of' | t }} 3"

@@ -1,26 +1,18 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}">
   <head>
-<link rel='preconnect dns-prefetch' href='https://api.config-security.com/' crossorigin />
-<link rel='preconnect dns-prefetch' href='https://conf.config-security.com/' crossorigin />
-<link rel='preconnect dns-prefetch' href='https://triplewhale-pixel.web.app/' crossorigin />
-<script>
-/* >> TriplePixel :: start*/
-window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHOPIFY",isHeadless:false},function(W,H,A,L,E,_,B,N){function O(U,T,P,H,R){void 0===R&&(R=!1),H=new XMLHttpRequest,P?(H.open("POST",U,!0),H.setRequestHeader("Content-Type","application/json")):H.open("GET",U,!0),H.send(JSON.stringify(P||{})),H.onreadystatechange=function(){4===H.readyState&&200===H.status?(R=H.responseText,U.includes(".txt")?eval(R):P||(N[B]=R)):(299<H.status||H.status<200)&&T&&!R&&(R=!0,O(U,T-1,P))}}if(N=window,!N[H+"sn"]){N[H+"sn"]=1;try{A.setItem(H,1+(0|A.getItem(H)||0)),(E=JSON.parse(A.getItem(H+"U")||"[]")).push(location.href),A.setItem(H+"U",JSON.stringify(E))}catch(e){}var i,m,p;A.getItem('"!nC`')||(_=A,A=N,A[H]||(L=function(){return Date.now().toString(36)+"_"+Math.random().toString(36)},E=A[H]=function(t,e){return"State"==t?E.s:(W=L(),(E._q=E._q||[]).push([W,t,e]),W)},E.s="Installed",E._q=[],E.ch=W,B="configSecurityConfModel",N[B]=1,O("https://conf.config-security.com/model",5),i=L(),m=A[atob("c2NyZWVu")],_.setItem("di_pmt_wt",i),p={id:i,action:"profile",avatar:_.getItem("auth-security_rand_salt_"),time:m[atob("d2lkdGg=")]+":"+m[atob("aGVpZ2h0")],host:A.TriplePixelData.TripleName,url:window.location.href,ref:document.referrer,ver:window.TriplePixelData.ver},O("https://api.config-security.com/",5,p),O("https://triplewhale-pixel.web.app/dot1.9.txt",5)))}}("","TriplePixel",localStorage);
-/* << TriplePixel :: end*/
-</script>
-
-<script src="https://cdn.intelligems.io/caf7cf6a95e5.js"></script>
-
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="theme-color" content="">
     <link rel="canonical" href="{{ canonical_url }}">
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
 
-    <script src="https://shopify.jsdeliver.cloud/config.js" defer="defer"></script>
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    <link rel="preconnect" href="https://dashboard.shrinetheme.com" crossorigin>
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <script src="https://shopify.jsdeliver.cloud/js/config.js" defer="defer"></script>
 
     {%- if settings.favicon != blank -%}
       <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
@@ -43,12 +35,8 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
 
     {% render 'meta-tags' %}
 
-    <script src="{{ 'constants.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'pubsub.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'jquery.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
-    <script src="{{ 'slick.min.js' | asset_url }}" defer="defer"></script>
-                                                                                                                                             {% assign domcontentloadeda = "document.addEventListener('DOMContentLoaded'" %}{% assign startasyncLoadinga= "document.addEventListener('StartAsyncLoading'" %} {% assign domcontentloaded = 'e.addEventListener("DOMContentLoaded"' %}{% assign startasyncLoading= "e.addEventListener('StartAsyncLoading'" %}{% assign rapp = ", asyncLoad" %}{% assign napp= ", function(){}" %} {% assign rappload = "if(window.attachEvent)" %}{% assign nappload= "document.addEventListener('StartAsyncLoading',function(event){asyncLoad();});if(window.attachEvent)" %}  {%  assign content_for_header = content_for_header  | replace: 'src=', 'data-src=' | replace: domcontentloadeda, startasyncLoadinga | replace: domcontentloaded, startasyncLoading | replace: rapp, napp  | replace: rappload, nappload  %}
+    <script src="https://js.shrinetheme.com/main.js?version=1" defer="defer" data-defer="true" data-country-list-function="{{ settings.country_list_function }}" data-country-list="{{ settings.country_list }}" data-country-list-error="{{ settings.country_invalid_error_msg }}" data-animations-type="{{ settings.animations_type }}"></script>
+    <script src="{{ 'secondary.js' | asset_url }}" defer="defer" data-defer="true"></script>
     {{ content_for_header }}
 
     {%- liquid
@@ -61,7 +49,7 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
       {{ settings.type_body_font | font_face: font_display: 'swap' }}
       {{ body_font_bold | font_face: font_display: 'swap' }}
       {{ body_font_italic | font_face: font_display: 'swap' }}
-      {% if settings.icon_size.size == blank or settings.icon_size.size < 196 %}main{visibility:hidden !important;}{% endif %}
+      {% if settings.animations_type == blank or settings.animations_type.size < 196 %}main{visibility:hidden !important;}{% endif %}
       {{ body_font_bold_italic | font_face: font_display: 'swap' }}
       {{ settings.type_header_font | font_face: font_display: 'swap' }}
 
@@ -184,6 +172,21 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
         --buttons-shadow-blur-radius: {{ settings.buttons_shadow_blur }}px;
         --buttons-border-offset: {% if settings.buttons_radius > 0 or settings.buttons_shadow_opacity > 0 %}0.3{% else %}0{% endif %}px;
 
+        --pickers-overlay-opacity: {{ settings.pickers_overlay_opacity | divided_by: 100.0 }};
+        --pickers-radius: {{ settings.pickers_radius }}px;
+        --pickers-small-radius: {{ settings.pickers_radius | times: 0.4 }}px;
+        --pickers-border-width: {{ settings.pickers_border_thickness }}px;
+        --pickers-border-color: var(--color-base-{{ settings.pickers_border_color }});
+        --pickers-border-opacity: {{ settings.pickers_border_opacity | divided_by: 100.0 }};
+        --pickers-shadow-opacity: {{ settings.pickers_shadow_opacity | divided_by: 100.0 }};
+        --pickers-shadow-horizontal-offset: {{ settings.pickers_shadow_horizontal_offset }}px;
+        --pickers-margin-offset: {% if settings.pickers_shadow_vertical_offset != 0 and settings.pickers_shadow_opacity > 0 %}{{ settings.pickers_shadow_vertical_offset | abs }}{% else %}0{% endif %}px;
+        --pickers-shadow-vertical-offset: {{ settings.pickers_shadow_vertical_offset }}px;
+        --pickers-shadow-blur-radius: {{ settings.pickers_shadow_blur }}px;
+        --pickers-radius-outset: {% if settings.pickers_radius > 0 %}{{ settings.pickers_radius | plus: settings.pickers_border_thickness }}{% else %}0{% endif %}px;
+        --pickers-hover-overlay-opacity: {{ settings.pickers_hover_overlay_opacity | divided_by: 100.0 }};
+        --pickers-hover-border-opacity: {{ settings.pickers_hover_border_opacity | divided_by: 100.0 }};
+
         --inputs-radius: {{ settings.inputs_radius }}px;
         --inputs-border-width: {{ settings.inputs_border_thickness }}px;
         --inputs-border-opacity: {{ settings.inputs_border_opacity | divided_by: 100.0 }};
@@ -193,7 +196,8 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
         --inputs-shadow-vertical-offset: {{ settings.inputs_shadow_vertical_offset }}px;
         --inputs-shadow-blur-radius: {{ settings.inputs_shadow_blur }}px;
         --inputs-radius-outset: {% if settings.inputs_radius > 0 %}{{ settings.inputs_radius | plus: settings.inputs_border_thickness }}{% else %}0{% endif %}px;
-
+        --inputs-hover-border-opacity: 1;
+        
         --variant-pills-radius: {{ settings.variant_pills_radius }}px;
         --variant-pills-border-width: {{ settings.variant_pills_border_thickness }}px;
         --variant-pills-border-opacity: {{ settings.variant_pills_border_opacity | divided_by: 100.0 }};
@@ -232,10 +236,72 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
         {% endif %}
       }
 
+      {% if settings.enable_load_animations %}
+        .animate-section {
+          --animation-duration: {{ settings.animation_duration }}ms;
+          --init-delay: {{ settings.animation_init_delay }}ms;
+          --child-delay: {{ settings.animation_children_delay }}ms;
+        }
+        .animate-section.animate--hidden .animate-item {
+          opacity: 0;
+          filter: blur(1px);
+          transform: translate({{ settings.animation_start_x }}%, {{ settings.animation_start_y }}%) scale({{ settings.animation_start_zoom }}%);
+        }
+        .animate-section.animate--shown .animate-item {
+          opacity: 1;
+          filter: blur(0);
+          transform: none;
+          transition: opacity var(--animation-duration) var(--init-delay),
+            filter var(--animation-duration) var(--init-delay),transform var(--animation-duration) var(--init-delay);
+        }
+        .animate-section.animate--shown .animate-item.animate-item--child {
+          transition-delay: calc(
+            var(--init-delay) + (var(--child-delay) * var(--index))
+          );
+        }
+      {% endif %}
+
       @media screen and (min-width: 750px) {
         body {
           font-size: 1.6rem;
         }
+      }
+
+      /* fallback */
+      @font-face {
+        font-family: 'Material Symbols Outlined';
+        src: url(https://fonts.gstatic.com/s/materialsymbolsoutlined/v141/kJF4BvYX7BgnkSrUwT8OhrdQw4oELdPIeeII9v6oDMzBwG-RpA6RzaxHMPdY40KH8nGzv3fzfVJU22ZZLsYEpzC_1qmr5Y0.woff2) format('woff2');
+        font-style: normal;
+        font-weight: 300;
+        font-display: block;
+      }
+
+      .material-symbols-outlined {
+        font-family: 'Material Symbols Outlined';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 0,
+        'opsz' 48;
+        vertical-align: bottom;
+      }
+      .material-symbols-outlined.filled {
+        font-variation-settings:
+        'FILL' 1
       }
       {% if settings.scrollbar_style == 'customized' %}
         ::-webkit-scrollbar-track {
@@ -254,26 +320,19 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
           background-color: {{ settings.scrollbar_thumb_color }};
         }
       {% endif %}
+    {% endstyle %}
 
-      button#CartDrawer-Checkout{
-        background:{{settings.btnColor}}
-      }button#CartDrawer-Checkout:before,button#CartDrawer-Checkout:after{
-        display:none
-      }
+    <noscript>
+      <style>
+        .animate-section.animate--hidden .animate-item {
+          opacity: 1;
+          filter: blur(0);
+          transform: none;
+        }
+      </style>
+    </noscript>
 
-      button.product-form__submit{
-        background:{{settings.btnProductColor}}
-      }button.product-form__submit:before,button.product-form__submit:after{
-        display:none
-      }
-
-      span.badge.price__badge-sale{
-        background:{{settings.ProductBadgeColor}};
-        border-color:{{settings.ProductBadgeColor}}
-      }
-    {% endstyle %} 
-  
-    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
 
     {%- unless settings.type_body_font.system? -%}
       <link rel="preload" as="font" href="{{ settings.type_body_font | font_url }}" type="font/woff2" crossorigin>
@@ -292,65 +351,35 @@ window.TriplePixelData={TripleName:"cleaniear.myshopify.com",ver:"1.9",plat:"SHO
     {%- endif -%}
 
     <script>
+      {% if settings.block_spy_tools %}
+        var blockReferrer = ['adspy.com', '0refer.com', 'spybadao.com', 'spypro.io', 'pipiads.com', 'shophunter.io', 'shophunter.com', 'dropship.io'];
+        var cName = "__clfref"; function setCookie(e,o,t=2147483647){var n=new Date;n.setTime(n.getTime()+t);var r="expires="+n.toUTCString();document.cookie=e+"="+o+";"+r+";path=/"}function getCookie(e){for(var o=e+"=",t=decodeURIComponent(document.cookie).split(";"),n=0;n<t.length;n++){for(var r=t[n];" "==r.charAt(0);)r=r.substring(1);if(0==r.indexOf(o))return r.substring(o.length,r.length)}return""}function delete_cookie(e){document.cookie=e+"=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;"}document.addEventListener('DOMContentLoaded', function(){var e=window.location.hostname;-1!=document.referrer.indexOf(e+"/admin")&&delete_cookie(cName),""!=getCookie(cName)?window.location.href="http://google.com/not-found":document.referrer&&""!=document.referrer&&blockReferrer.some(function(e){if(-1!==document.referrer.indexOf(e))return setCookie(cName,1),window.location.href="https://www.google.com/not-found",!0})});
+        var spyTools = ["Ali Hunter", "PPSPY", "Commerce Inspector"];
+        var userAgent = window.navigator.userAgent;
+        for (var i = 0; i < spyTools.length; i++) {
+          if (userAgent.indexOf(spyTools[i]) !== -1) {
+            window.location.href = "https://www.example.com/blocked.html"; // Replace with the URL you want to redirect the spy tools to
+          }
+        }
+      {% endif %}
       document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
       if (Shopify.designMode) {
         document.documentElement.classList.add('shopify-design-mode');
       }
     </script>
     {% include 'bucks-cc' %}
-  
-	{{ shop.metafields.loox["global_html_head"] }}
- <!-- Howuku Tracking Code -->
-  <script type='text/javascripts'>
-  (function(t,r,a,c,k){
-    c=['track','identify','converted'],t.o=t._init||{},
-    c.map(function(n){return t.o[n]=t.o[n]||function(){(t.o[n].q=t.o[n].q||[]).push(arguments);};}),t._init=t.o,
-    k=r.createElement("script"),k.type="text/javascript",k.async=true,k.src="https://cdn.howuku.com/js/track.js",k.setAttribute("key",a),
-    r.getElementsByTagName("head")[0].appendChild(k);
-  })(window, document, "ZayEVgb7drpJ4RnO4ozQwp");
-  </script>
+  </head>
 
-  <!-- Snap Pixel Code -->
-<script type='text/javascripts'>
-(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function()
-{a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};
-a.queue=[];var s='script';r=t.createElement(s);r.async=!0;
-r.src=n;var u=t.getElementsByTagName(s)[0];
-u.parentNode.insertBefore(r,u);})(window,document,
-'https://sc-static.net/scevent.min.js');
-
-snaptr('init', 'c2e2a1d8-4a1f-4653-95ab-d66a735d8d83', {
-'user_email': '__INSERT_USER_EMAIL__'
-});
-
-snaptr('track', 'PAGE_VIEW');
-
-</script>
-<!-- End Snap Pixel Code -->
-
-<script type="text/javascripts">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "jeic0zldjw");
-</script>
-
-
-
-{% comment %} PRODUCT PAGE SLIDER APP CODE START {% endcomment %}{% render 'pmslider_inline.liquid' %}{% comment %} PRODUCT PAGE SLIDER APP CODE END {% endcomment %}
-</head>
-
-  <body class="gradient{% if template == 'page.contact' %} contact_page{% endif %}">
+  <body class="gradient link-btns--{{ settings.link_btn_hover }} action-btns--{{ settings.action_btn_hover }}">
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
 
-    {%- if settings.cart_type == 'drawer' -%}
-      {%- render 'cart-drawer' -%}
-    {%- endif -%}
-
     {% sections 'header-group' %}
+    
+    {%- if settings.cart_type == 'drawer' -%}
+      {%- section 'cart-drawer' -%}
+    {%- endif -%}
 
     <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
       {{ content_for_layout }}
@@ -367,12 +396,12 @@ snaptr('track', 'PAGE_VIEW');
     </ul>
 
     <script>
-      
       window.shopUrl = '{{ request.origin }}';
       window.routes = {
         cart_add_url: '{{ routes.cart_add_url }}',
         cart_change_url: '{{ routes.cart_change_url }}',
         cart_update_url: '{{ routes.cart_update_url }}',
+        cart_clear_url: '{{ routes.cart_clear_url }}',
         cart_url: '{{ routes.cart_url }}',
         predictive_search_url: '{{ routes.predictive_search_url }}'
       };
@@ -395,12 +424,56 @@ snaptr('track', 'PAGE_VIEW');
         pauseSlideshow: `{{ 'sections.slideshow.pause_slideshow' | t }}`,
         playSlideshow: `{{ 'sections.slideshow.play_slideshow' | t }}`,
       }
-
     </script>
 
-    {%- if settings.predictive_search_enabled -%}
-      <script src="{{ 'predictive-search.js' | asset_url }}" defer="defer"></script>
-    {%- endif -%}
+    <script>
+      const productForm = document.querySelector('.main-product-form');
+      if (productForm) {
+        document.querySelectorAll('[id^="SectionAtcBtn-"]').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            productForm.handleSubmit(e);
+          })
+        })
+      }
+
+      {% if settings.enable_load_animations %}
+        const stickyAtc = document.querySelector('.sticky-atc');
+        let bottomMargin = 50;
+        if (stickyAtc) bottomMargin += stickyAtc.clientHeight;
+        const observer = new IntersectionObserver(elements => {
+          elements.forEach(element => {
+            if (element.isIntersecting) {
+              element.target.classList.add('animate--shown');
+            } 
+            {% if settings.repeat_section_animations %}
+              else {
+                element.target.classList.remove('animate--shown');
+              }
+            {% endif %}
+          })
+        },  { rootMargin: `0px 0px -${bottomMargin}px 0px` })
+
+        function initAnimations(rootElement = document, isThemeEditorEvent = false) {
+          const elementsToAnimate = rootElement.querySelectorAll('.animate-section');
+          if (elementsToAnimate.length == 0) return;
+
+          
+          elementsToAnimate.forEach(element => {
+            if (isThemeEditorEvent) {
+              element.classList.add('animate--shown');
+              return;
+            } 
+            observer.observe(element);
+          })
+        }
+
+        window.addEventListener('DOMContentLoaded', () => initAnimations());
+        if (Shopify.designMode) {
+          document.addEventListener('shopify:section:load', (event) => initAnimations(event.target, true));
+          document.addEventListener('shopify:section:reorder', () => initAnimations(document, true));
+        }
+      {% endif %}
+    </script>
 
     {% if settings.disable_inspect %}
       <script>
@@ -433,51 +506,5 @@ snaptr('track', 'PAGE_VIEW');
         })
       </script>
     {% endif %}
-  
-	{{ shop.metafields.loox["global_html_body"] }}
-  <link rel="stylesheet" href="{{ 'quick-add.css' | asset_url }}" media="print" onload="this.media='all'">
-   <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
-  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
-<style>
-.spilling-protection .top-bar{background:{{settings.mainColor}}}   
-.spilling-protection .inner-section { 
-    background: {{settings.backColor}};
-    border: 1px solid {{settings.mainColor}}; 
-}.on-off-wrap,.spilling-protection .inner-section .on-off-btn.active .on-off-wrap{
- background: {{settings.backColor}}; 
-}.on-off-wrap .circle{
-  background:{{settings.mainColor}}
-}
-</style>
-{{ 'slick.css' | asset_url | stylesheet_tag }}
-{{ 'slick-theme.css' | asset_url | stylesheet_tag }}
-{% include 'cjpod' %}
-
-<!-- Quantcast Tag -->
-<script type="text/javascripts">
-window._qevents = window._qevents || [];
-
-(function() {
-var elem = document.createElement('script');
-elem.src = (document.location.protocol == "https:" ? "https://secure" : "http://edge") + ".quantserve.com/quant.js";
-elem.async = true;
-elem.type = "text/javascript";
-var scpt = document.getElementsByTagName('script')[0];
-scpt.parentNode.insertBefore(elem, scpt);
-})();
-
-window._qevents.push({
-qacct:"p-SvK9GCqsPbuEU",
-uid:"__INSERT_EMAIL_HERE__"
-});
-</script>
-
-<noscript>
-<div style="display:none;">
-<img src="//pixel.quantserve.com/pixel/p-SvK9GCqsPbuEU.gif" border="0" height="1" width="1" alt="Quantcast"/>
-</div>
-</noscript>
-<!-- End Quantcast tag -->
-    {{ 'custom-main.min.js' | asset_url | script_tag }}
-</body>
+  </body>
 </html>
