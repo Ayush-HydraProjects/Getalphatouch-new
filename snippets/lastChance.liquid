@@ -1,0 +1,125 @@
+{% if section.settings.lastChanceBar %}
+<style> 
+.last_chance_bar{background:{{section.settings.lastChanceBarColor}};color:{{ section.settings.lastChanceBarTColor }};display:flex;align-items:center;justify-content:center;padding:10px 0;width:100%;transition:transform .35s ease-in-out;}
+.last_chance_bar .last_chance_bar__title{font-weight:700;}
+.last_chance_bar .last_chance_bar__inner{display:flex;text-align:center;font-weight:700;padding-left:15px;}
+.last_chance_bar .last_chance_bar__inner>div{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;padding-right:10px;}
+.last_chance_bar .last_chance_bar__inner>div span{font-size:18px;line-height:1em;}
+.last_chance_bar .last_chance_bar__inner>div label{margin-top:5px;margin-bottom:0;font-size:13px;line-height:1em;}
+.pt_lc_br{display:none;}
+@media (max-width: 760px){
+html[lang=en] .last_chance_bar__title{font-size:13px!important;}
+.last_chance_bar{padding:10px 5px;justify-content:space-evenly!important;}
+.last_chance_bar .last_chance_bar__title{text-align:center;line-height:1.15em;font-size:12px;}
+.last_chance_bar .last_chance_bar__inner{padding:0!important;}
+.last_chance_bar .last_chance_bar__inner>div{padding-right:3px!important;}
+.last_chance_bar .last_chance_bar__inner>div span{font-size:15px!important;}
+.last_chance_bar .last_chance_bar__inner>div label{font-size:11px!important;}
+}
+</style>
+
+<div class="last_chance_bar" style="display:none">
+  <div class="last_chance_bar__title">{{ section.settings.BarText }}</div>
+  <div class="last_chance_bar__title pt_lc_br">{{ section.settings.BarText }}</div>
+  <div class="last_chance_bar__inner">
+    <div class="h">
+      <span data-pf-type="CountdownNumber" class="last_chance_bar__inner__hours" id="hours">00</span>
+      <label data-pf-type="CountdownLabel">Hr</label>
+    </div>
+    <div class="last_chance_bar__inner__colon"><span>:</span></div>
+    <div class="m">
+      <span data-pf-type="CountdownNumber" class="last_chance_bar__inner__mins" id="minutes">00</span>
+      <label data-pf-type="CountdownLabel">Min</label>
+    </div>
+    <div class="last_chance_bar__inner__colon"><span>:</span></div>
+    <div class="s">
+      <span data-pf-type="CountdownNumber" class="last_chance_bar__inner__secs" id="secs">00</span>
+      <label data-pf-type="CountdownLabel">Sec</label>
+    </div>
+  </div>
+</div>
+ 
+
+<script> 
+  function minsToMidnight() {
+  var now = new Date();
+  var then = new Date(now);
+  then.setHours(24, 0, 0, 0);
+  return (then - now) / 6e4;
+}
+ 
+// Duration in minutes
+var duration = minsToMidnight();
+
+function resetStartTime() {
+  var startTime = Date.now();
+  var eventTime = duration * 60 * 1000;
+  var eventDuration = new Date(startTime + eventTime);
+  // Save to localStorage
+  localStorage.setItem("startTime", eventDuration);
+  return eventDuration;
+}
+function timerFunction()
+  {
+    // Get the stored time
+  var startTime = new Date(
+    localStorage.getItem("startTime") || resetStartTime()
+  );
+  // Starting the timer
+  timeInterval = setInterval(() => {
+    // Stored value - current time
+    var timer = startTime.getTime() - Date.now();
+
+    // Uncomment these lines if you want to use 'days' and 'hours'
+    // var days = Math.floor(timer / (1000 * 60 * 60 * 24))
+    var hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    var minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((timer % (1000 * 60)) / 1000);
+
+    // Add to DOM
+
+    if(hours<10)hours= "0"+hours;
+    if(minutes<10)minutes= "0"+minutes;
+    if(seconds<10)seconds= "0"+seconds;
+
+    document.querySelector("#hours").innerHTML = hours;
+    document.querySelector("#minutes").innerHTML = minutes;
+    document.querySelector("#secs").innerHTML = seconds;
+    
+    
+    // Clear and reset when done
+    if (timer <= 0) { 
+      localStorage.removeItem("startTime");
+      clearInterval(timeInterval);
+    }
+  }, 1000);
+  
+  }
+
+function startTimerAgain()
+  {
+localStorage.removeItem("startTime");
+clearInterval(timeInterval);
+timerFunction();  
+  }
+  
+document.addEventListener("DOMContentLoaded", () => {
+timerFunction();
+ 
+document.addEventListener("scroll", (event) => {
+  lastKnownScrollPosition = window.scrollY;
+
+  if(lastKnownScrollPosition > 400)
+  { 
+$('.last_chance_bar').show();  
+  }else{
+$('.last_chance_bar').hide();
+  }
+});
+
+  
+});
+ 
+</script>
+
+{% endif %}

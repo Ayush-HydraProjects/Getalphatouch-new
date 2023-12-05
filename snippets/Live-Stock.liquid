@@ -1,0 +1,23 @@
+<style>
+.pulse.green:after {background: {{ settings.pulse }};}
+.pulse.green:before {background: {{ settings.pulse }};}
+</style>
+
+<div class="stock-section maison_test" style="background-color: {{ settings.background }};">
+  <span class="pulse green"></span>
+  <span class="stock-section-content" style="color: {{ settings.text-color }};">
+    {% if localization.country.iso_code == "US" %}
+    {{ settings.text }}
+      {% elsif localization.country.iso_code == "CA"%}
+      {{ settings.text_ca }}
+      {% elsif localization.country.iso_code == "AU"%}
+      {{ settings.text_au }}
+      {% elsif localization.country.iso_code == "GB"%}
+      {{ settings.text_uk }}
+      {% elsif localization.country.iso_code == "NZ"%}
+      {{ settings.text_nz }}
+      {% else %}
+      {{ settings.text_int }}
+      {% endif %}
+  </span>
+</div>

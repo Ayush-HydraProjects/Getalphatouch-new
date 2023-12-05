@@ -1,0 +1,68 @@
+<style>
+  .reviews h2.title.h1.heading-cs strong{
+        background: linear-gradient(to right, {{section.settings.grad1}} 0%,{{section.settings.grad2}} 50%, {{section.settings.grad1}});
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+</style>
+{% render "CustomSlider", section: section %}
+
+{% schema %}
+  {
+    "name": "Custom Slider",
+    "settings": [
+      {
+        "type": "inline_richtext",
+        "id": "heading",
+        "label": "Heading",
+        "default": "Thousands of Men Praise Us",
+        "info":"use bold for gradient"
+      },
+      {
+        "type":"color",
+        "id":"grad1",
+        "label":"Gradient 1"
+      },
+      {
+        "type":"color",
+        "id":"grad2",
+        "label":"Gradient 2"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "upper-blocks",
+        "name": "Upper Block",
+        "settings":[
+          {
+            "type": "image_picker",
+            "id": "img",
+            "label": "Image"
+          },
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "Text"
+          }
+        ]
+      },
+      {
+        "type": "bottom-blocks",
+        "name": "Bottom Block",
+        "settings":[
+          {
+            "type": "image_picker",
+            "id": "img",
+            "label": "Image"
+          },
+          {
+            "type": "richtext",
+            "id": "text",
+            "label": "Text"
+          }
+        ]
+      }
+    ],
+    "presets": [{"name": "Custom Slider"}]
+  }
+{% endschema %}

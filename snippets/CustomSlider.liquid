@@ -1,0 +1,83 @@
+<section class="CustomSlider-cs">
+  <div class="main-wrapper-cs">
+    <div class="reviews">
+      <h2 class="title h1 heading-cs">{{ section.settings.heading }}</h2>
+
+      <div class="slider-{{ section.id }} slider-cs">
+        <div class="parer">
+          <div class="reviews_block">
+            {% for block in section.blocks %}
+              {% if block.type == 'upper-blocks' %}
+                {% if block.settings.text != blank %}
+                  <div class="reviews_item">
+                    <div class="item_wrap">
+                      {% if block.settings.img != blank %}
+                        <div class="item_wrap-icon">
+                          <img
+                            src="{{ block.settings.img | img_url: '180x' }}"
+                            alt="{{ block.settings.img.alt | escape }}"
+                            class="item_wrap-icon__icon"
+                            loading="loaded"
+                            width="100%"
+                            height="100%"
+                          >
+                        </div>
+                      {% endif %}
+                      <div class="item_wrap-text">{{ block.settings.text }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="reviews_block-bottom">
+            {% for block in section.blocks %}
+              {% if block.type == 'bottom-blocks' %}
+                {% if block.settings.text != blank %}
+                  <div class="reviews_item">
+                    <div class="item_wrap">
+                      {% if block.settings.img != blank %}
+                        <div class="item_wrap-icon">
+                          <img
+                            src="{{ block.settings.img | img_url: '180x' }}"
+                            alt="{{ block.settings.img.alt | escape }}"
+                            class="item_wrap-icon__icon"
+                            loading="loaded"
+                            width="100%"
+                            height="100%"
+                          >
+                        </div>
+                      {% endif %}
+                      <div class="item_wrap-text">{{ block.settings.text }}</div>
+                    </div>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        // set the .slider-{{ section.id }} height to the height of the .parer:
+        function setHeight() {
+          var parer = document.querySelector(
+            '.slider-{{ section.id }} .parer'
+          );
+          var parerHeight = parer.getBoundingClientRect().height;
+          var parerWrapper = document.querySelector(
+            '.slider-{{ section.id }}'
+          );
+          parerWrapper.style.height = parerHeight + 'px';
+        }
+        // DOMContentLoaded:
+        document.addEventListener('DOMContentLoaded', setHeight);
+        window.addEventListener('resize', setHeight);
+        document.addEventListener('shopify:section:load', setHeight);
+      })();
+    </script>
+  </div>
+</section>

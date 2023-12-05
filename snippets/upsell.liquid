@@ -1,0 +1,33 @@
+{% if settings.upsell != blank and cart != empty %}
+<tr class="spilling-protection">
+  <td class="inner-section">
+    <div class="top-bar"> 
+      {% assign alreadythere = false %}
+      {% for item in cart.items %}
+      {% if item.product.id == settings.upsell.id %}{% assign alreadythere = true %}{% endif %}
+      {% endfor %} 
+      <div class="on-off-btn buttonactive {% if alreadythere %}active{% else %}{% if settings.preselect %} clickMEplz{% endif %}{% endif %}" data-id="{{ settings.upsell.selected_or_first_available_variant.id }}"> 
+        <label class="on-off-wrap" for="on-off" onclick="runUpsell()">
+          <span class="circle"></span>
+        </label>
+      </div>
+      <div class="title"><h4>{{ settings.title }}</h4></div>
+      <div class="prize"><span>+{{ settings.upsell.price | money }}</span></div>
+      <div class="pro-img"><img loading="lazy" alt="{{ settings.image.alt }}" src="{{ settings.image | img_url: '250x' }}"></div>
+    </div>
+    <div class="bottom-part">
+      {% if settings.text1 != blank %}
+      <div class="main-heading"><span class="tick"><img loading="lazy" src="https://cdn.shopify.com/s/files/1/0716/2157/4941/files/tick.png" alt="tick"></span><p>{{ settings.text1 }}</p></div>
+      {% endif %}
+       <div class="heading-block">
+         {% for i in (2..4) %}
+          {% capture text %}text{{ i }}{% endcapture %}
+           {% if settings[text] != blank %}
+        <div class="heading"><span class="tick"><img loading="lazy" src="https://cdn.shopify.com/s/files/1/0716/2157/4941/files/tick.png" alt="tick"></span><p>{{ settings[text] }}</p></div>
+           {% endif %}
+         {% endfor %} 
+      </div>
+    </div>
+  </td> 
+</tr>
+{% endif %}

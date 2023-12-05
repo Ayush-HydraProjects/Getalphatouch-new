@@ -1,0 +1,68 @@
+<style>
+.sticky-buttons .btn-wrapper .sticky-btn {
+  background-color: {{ section.settings.color }};transition:all 0.4s ease;
+  
+}.hideSmoothly{
+  user-select:none;pointer-events:none;opacity:0 !important
+}
+.sticky-btn::before {
+  {% if section.settings.img != blank %}
+    background-image: url('{{ section.settings.img | img_url: '180x' }}');
+  {% endif %}
+}
+</style>
+
+<section class="sticky-buttons" style="display: block;">
+  <div class="btn-wrapper">
+    <a id="stickyBtn" href="#stickyPoint" style="" class="hideSmoothly sticky-btn smooth-redirect">{{ section.settings.text }}</a>
+  </div>
+</section>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", (event) => {
+$.fn.isInViewport = function() {
+var elementTop = $(this).offset().top;
+var elementBottom = elementTop + $(this).outerHeight() - {% if template.name contains 'product' %}550{% else %}200{% endif %};
+var viewportTop = $(window).scrollTop();
+var viewportBottom = viewportTop + $(window).height();
+return elementBottom > viewportTop && elementTop < viewportBottom;
+};
+  
+  
+  $(window).on('resize scroll', function() {
+   
+    if ($('#stickyPoint').isInViewport()) {
+      $('#stickyBtn').addClass('hideSmoothly');
+    } else {
+      $('#stickyBtn').removeClass('hideSmoothly');
+    } 
+    
+});
+});
+</script>
+{% schema %}
+  {
+    "name": "Sticky Button",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "img",
+        "label": "Image"
+      },
+      {
+        "type": "text",
+        "id": "text",
+        "label": "Text",
+        "default": "CHOOSE PACKAGE"
+      },
+      {
+        "type": "color",
+        "id": "color",
+        "label": "Color",
+        "default": "#201f1f"
+      }
+    ],
+    "presets": [{"name": "Sticky Button"}]
+  }
+{% endschema %}
