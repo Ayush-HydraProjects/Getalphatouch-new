@@ -10,19 +10,9 @@
   Usage:
   {% render 'buy-buttons', block: block, product: product, product_form_id: product_form_id, show_pickup_availability: true %}
 {% endcomment %}
-{% if block.settings.enable_custom_color %}
-  {% style %}
-    #ProductSubmitButton-{{ section_id }} {
-      --color-button: {{ block.settings.custom_color.red }}, {{ block.settings.custom_color.green }}, {{ block.settings.custom_color.blue }};
-    }
-  {% endstyle %}
-{% endif %}
-<div
-  {{ block.shopify_attributes }}
-  style="--margin-top: {{ block.settings.margin_top | divided_by: 10.0 }}rem;--margin-bottom: {{ block.settings.margin_bottom | divided_by: 10.0 }}rem;"
->
+<div {{ block.shopify_attributes }}>
   {%- if product != blank -%}
-    <product-form class="product-form main-product-form" data-section="{{ section.id }}" data-options="{{ product.options | join: ',' }}" id="ProductForm-{{ section.id }}">
+    <product-form class="product-form" data-section="{{ section.id }}">
       <div class="product-form__error-message-wrapper" role="alert" hidden>
         <svg
           aria-hidden="true"
@@ -70,24 +60,15 @@
             id="ProductSubmitButton-{{ section_id }}"
             type="submit"
             name="add"
-            class="atc-button product-form__submit button button--full-width button--margin-x{% if main_product %} main-product-atc{% endif %}"
+            class="atc-button product-form__submit button button--full-width button--margin-x"
             {% if product.selected_or_first_available_variant.available == false or quantity_rule_soldout %}
               disabled
-              data-unavailable="true"
             {% endif %}
-            data-required-fields="0"
-            data-valid-fields="0"
           >
-            <span class="main-atc__error" style="display:none;"></span>
-            <span class="main-atc__label">
+            <span>
               {%- if product.selected_or_first_available_variant.available == false or quantity_rule_soldout -%}
                 {{ 'products.product.sold_out' | t }}
               {%- else -%}
-                <span id="main-atc-price-{{ section.id }}">
-                  {% if block.settings.display_price %}
-                    {{ product.selected_or_first_available_variant.price | money }} •
-                  {% endif %}
-                </span>
                 {{ 'products.product.add_to_cart' | t }}
               {%- endif -%}
             </span>

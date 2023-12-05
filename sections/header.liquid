@@ -1,3 +1,33 @@
+{% assign drawerOnDesktop = section.settings.drawerOnDesktop %}
+
+<link rel="stylesheet" href="{{ 'component-list-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-search.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-menu-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-cart-notification.css' | asset_url }}" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="{{ 'component-cart-items.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- if settings.predictive_search_enabled -%}
+  <link rel="stylesheet" href="{{ 'component-price.css' | asset_url }}" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="{{ 'component-loading-overlay.css' | asset_url }}" media="print" onload="this.media='all'">
+{%- endif -%}
+{%- if section.settings.menu_type_desktop == 'mega' -%}
+  <link rel="stylesheet" href="{{ 'component-mega-menu.css' | asset_url }}" media="print" onload="this.media='all'">
+  <noscript>{{ 'component-mega-menu.css' | asset_url | stylesheet_tag }}</noscript>
+{%- endif -%}
+{%- if settings.cart_type == "drawer" -%}
+  {{ 'component-cart-drawer.css' | asset_url | stylesheet_tag }}
+  {{ 'component-cart.css' | asset_url | stylesheet_tag }}
+  {{ 'component-totals.css' | asset_url | stylesheet_tag }}
+  {{ 'component-price.css' | asset_url | stylesheet_tag }}
+  {{ 'component-discounts.css' | asset_url | stylesheet_tag }}
+  {{ 'component-loading-overlay.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+<noscript>{{ 'component-list-menu.css' | asset_url | stylesheet_tag }}</noscript>
+<noscript>{{ 'component-search.css' | asset_url | stylesheet_tag }}</noscript>
+<noscript>{{ 'component-menu-drawer.css' | asset_url | stylesheet_tag }}</noscript>
+<noscript>{{ 'component-cart-notification.css' | asset_url | stylesheet_tag }}</noscript>
+<noscript>{{ 'component-cart-items.css' | asset_url | stylesheet_tag }}</noscript>
+
 <style>
   header-drawer {
     justify-self: start;
@@ -6,16 +36,6 @@
 
   .header__heading-logo {
     max-width: {{ settings.logo_width }}px;
-  }
-
-  .header__heading-logo--secondary {
-    display: none;
-  }
-  
-  @media screen and (max-width: 749px) {
-    .header__heading-logo {
-      max-width: {{ settings.mobile_logo_width }}px;
-    }
   }
 
   {% if section.settings.display_search == false %}
@@ -101,10 +121,13 @@
   }
 {%- endstyle -%}
 
-{% if settings.cart_type == 'notification' %}
-  <link rel="stylesheet" href="{{ 'component-cart-notification.css' | asset_url }}" media="print" onload="this.media='all'">
-  <script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
-{% endif %}
+<script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'details-modal.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'search-form.js' | asset_url }}" defer="defer"></script>
+{%- if settings.cart_type == "drawer" -%}
+  <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
 
 <svg xmlns="http://www.w3.org/2000/svg" class="hidden">
   <symbol id="icon-search" viewbox="0 0 18 19" fill="none">
@@ -124,7 +147,8 @@
 <{% if section.settings.sticky_header_type != 'none' %}sticky-header data-sticky-type="{{ section.settings.sticky_header_type }}"{% else %}div{% endif %} class="header-wrapper color-{{ section.settings.color_scheme }} gradient{% if section.settings.show_line_separator %} header-wrapper--border-bottom{% endif %}">
   <header class="header header--{{ section.settings.logo_position }} header--mobile-{{ section.settings.mobile_logo_position }} page-width{% if section.settings.menu != blank %} header--has-menu{% endif %}">
     {%- if section.settings.menu != blank -%}
-      <header-drawer data-breakpoint="tablet" data-drawer="{{ settings.animations_type }}">
+      <header-drawer {% if drawerOnDesktop %}class="showOnDesktop"{% endif %} data-breakpoint="tablet">
+       <div class="cover_main_menu_form">
         <details id="Details-menu-drawer-container" class="menu-drawer-container">
           <summary class="header__icon header__icon--menu header__icon--summary link focus-inset" aria-label="{{ 'sections.header.menu' | t }}">
             <span>
@@ -161,23 +185,13 @@
                                 <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
                                   {%- for childlink in link.links -%}
                                     <li>
-                                      {%- if childlink.links != blank or section.settings.products_mega_menu_links contains link.title and section.settings.products_mega_menu_display_collection_products -%}
+                                      {%- if childlink.links == blank -%}
+                                        <a href="{{ childlink.url }}" class="menu-drawer__menu-item link link--text list-menu__item focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"{% if childlink.current %} aria-current="page"{% endif %}>
+                                          {{ childlink.title | escape }}
+                                        </a>
+                                      {%- else -%}
                                         <details id="Details-menu-drawer-submenu-{{ forloop.index }}">
                                           <summary class="menu-drawer__menu-item link link--text list-menu__item focus-inset">
-                                            {% if section.settings.products_mega_menu_links contains link.title and childlink.url contains 'collections' and section.settings.products_mega_menu_display_collection_images_on_mobile %}
-                                              {% assign link_collection_handle = childlink.url | remove: '/collections/' %}
-                                              {% assign link_current_collection = collections[link_collection_handle] %}
-                                              {% if link_current_collection.featured_image != blank %}
-                                                <div class="header__menu-item__preview-image header__menu-item__preview-image--mobile">
-                                                  <img
-                                                    src="{{ link_current_collection.featured_image | image_url: width: 150 }}"
-                                                    alt=""
-                                                    width="auto"
-                                                    height="auto"
-                                                  >
-                                                </div>
-                                              {% endif %}
-                                            {% endif %}
                                             {{ childlink.title | escape }}
                                             {% render 'icon-arrow' %}
                                             {% render 'icon-caret' %}
@@ -187,66 +201,17 @@
                                               {% render 'icon-arrow' %}
                                               {{ childlink.title | escape }}
                                             </button>
-                                            {% if section.settings.products_mega_menu_links contains link.title %}
-                                              <ul class="products-mega-menu__cards products-mega-menu__cards--mobile">
-                                                {% if section.settings.products_mega_menu_display_collection_products %}
-                                                  {% assign link_collection_handle = childlink.url | remove: '/collections/' %}
-                                                  {% assign link_current_collection = collections[link_collection_handle] %}
-                                                  {% for product in link_current_collection.products %}
-                                                    <li>
-                                                      {% render 'card-product',
-                                                        card_product: product,
-                                                        media_aspect_ratio: 'square',
-                                                        show_secondary_image: true,
-                                                        extend_height: false,
-                                                        custom_color_scheme: 'background-1'
-                                                      %}
-                                                    </li>
-                                                  {% endfor %}
-                                                {% endif %}
-                                                {%- for grandchildlink in childlink.links -%}
-                                                  <li>
-                                                    {% if grandchildlink.url contains 'products' %}
-                                                      {% assign product_handle = grandchildlink.url | remove: '/products/' %}
-                                                      {% assign current_product = all_products[product_handle] %}
-                                                      {% render 'card-product',
-                                                        card_product: current_product,
-                                                        media_aspect_ratio: 'square',
-                                                        show_secondary_image: true,
-                                                        extend_height: false,
-                                                        custom_color_scheme: 'background-1'
-                                                      %}
-                                                    {% elsif grandchildlink.url contains 'collections' %}
-                                                      {% assign collection_handle = grandchildlink.url | remove: '/collections/' %}
-                                                      {% assign current_collection = collections[collection_handle] %}
-                                                      {% render 'card-collection',
-                                                        card_collection: current_collection,
-                                                        media_aspect_ratio: 'square',
-                                                        extend_height: false,
-                                                        columns: 1,
-                                                        custom_color_scheme: 'background-1'
-                                                      %}
-                                                    {% endif %}
-                                                  </li>
-                                                {%- endfor -%}
-                                              </ul>
-                                            {% else %}
-                                              <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
-                                                {%- for grandchildlink in childlink.links -%}
-                                                  <li>
-                                                    <a href="{{ grandchildlink.url }}" class="menu-drawer__menu-item link link--text list-menu__item focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"{% if grandchildlink.current %} aria-current="page"{% endif %}>
-                                                      {{ grandchildlink.title | escape }}
-                                                    </a>
-                                                  </li>
-                                                {%- endfor -%}
-                                              </ul>
-                                            {% endif %}
+                                            <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
+                                              {%- for grandchildlink in childlink.links -%}
+                                                <li>
+                                                  <a href="{{ grandchildlink.url }}" class="menu-drawer__menu-item link link--text list-menu__item focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"{% if grandchildlink.current %} aria-current="page"{% endif %}>
+                                                    {{ grandchildlink.title | escape }}
+                                                  </a>
+                                                </li>
+                                              {%- endfor -%}
+                                            </ul>
                                           </div>
                                         </details>
-                                      {%- else -%}
-                                        <a href="{{ childlink.url }}" class="menu-drawer__menu-item link link--text list-menu__item focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"{% if childlink.current %} aria-current="page"{% endif %}>
-                                          {{ childlink.title | escape }}
-                                        </a>
                                       {%- endif -%}
                                     </li>
                                   {%- endfor -%}
@@ -417,11 +382,171 @@
                       </li>
                     {%- endif -%}
                   </ul>
+
+
+                   {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+              <div class="hedaer_cover_countryform large-up-hide medium-hide">
+          <noscript>
+            {%- form 'localization', id: 'FooterCountryFormNoScript', class: 'localization-form' -%}
+              <div class="localization-form__select">
+                <h2 class="visually-hidden" id="FooterCountryLabelNoScript">{{ 'localization.country_label' | t }}</h2>
+                <select
+                  class="localization-selector link"
+                  name="country_code"
+                  aria-labelledby="FooterCountryLabelNoScript"
+                >
+                  {%- for country in localization.available_countries -%}
+                    <option
+                      value="{{ country.iso_code }}"
+                      {%- if country.iso_code == localization.country.iso_code %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ country.name }} ({{ country.currency.iso_code }}
+                      {{ country.currency.symbol }})
+                    </option>
+                  {%- endfor -%}
+                </select>
+                {% render 'icon-caret' %}
+              </div>
+              <button class="button button--tertiary">{{ 'localization.update_country' | t }}</button>
+            {%- endform -%}
+          </noscript>
+          <localization-form>
+            {%- form 'localization', id: 'FooterCountryForm', class: 'localization-form' -%}
+              <div class="no-js-hidden">
+                <div class="disclosure">
+                  <button
+                    type="button"
+                    class="disclosure__button localization-form__select localization-selector link link--text caption-large large-up-hide medium-hide small-hide"
+                    aria-expanded="false"
+                    aria-controls="FooterCountryList"
+                    aria-describedby="FooterCountryLabel"
+                  >
+                    {{ localization.country.name }} {% comment %}({{ localization.country.currency.iso_code }}{% endcomment %}
+                   ({{ localization.country.currency.symbol }})
+                    {% render 'icon-caret' %}
+                  </button>
+                    <div
+                    type="button"
+                    class="disclosure__button localization-form__select localization-selector link link--text caption-large mobile_loc_btn"
+                    aria-expanded="false"
+                    aria-controls="FooterCountryList"
+                    aria-describedby="FooterCountryLabel"
+                  >
+                    {{ localization.country.name }} {% comment %}({{ localization.country.currency.iso_code }}{% endcomment %}
+                   ({{ localization.country.currency.symbol }})
+                    {% render 'icon-caret' %}
+                  </div>
+                  <div class="disclosure__list-wrapper" hidden>
+                    <ul id="FooterCountryList" role="list" class="disclosure__list list-unstyled">
+                      {%- for country in localization.available_countries -%}
+                        <li class="disclosure__item" tabindex="-1">
+                          <a
+                            class="link link--text disclosure__link caption-large{% if country.iso_code == localization.country.iso_code %} disclosure__link--active{% endif %} focus-inset"
+                            href="#"
+                            {% if country.iso_code == localization.country.iso_code %}
+                              aria-current="true"
+                            {% endif %}
+                            data-value="{{ country.iso_code }}"
+                          >
+                            {{ country.name }}
+                            <span class="localization-form__currency"
+                              >({{ country.currency.iso_code }}
+                              {{ country.currency.symbol }})</span
+                            >
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </div>
+                <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+              </div>
+            {%- endform -%}
+          </localization-form>
+              </div>
+        {%- endif -%}
+                  
                 </div>
               </div>
             </div>
           </div>
         </details>
+
+        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+              <div class="hedaer_cover_countryform small-hide">
+          <noscript>
+            {%- form 'localization', id: 'FooterCountryFormNoScript', class: 'localization-form' -%}
+              <div class="localization-form__select">
+                <h2 class="visually-hidden" id="FooterCountryLabelNoScript">{{ 'localization.country_label' | t }}</h2>
+                <select
+                  class="localization-selector link"
+                  name="country_code"
+                  aria-labelledby="FooterCountryLabelNoScript"
+                >
+                  {%- for country in localization.available_countries -%}
+                    <option
+                      value="{{ country.iso_code }}"
+                      {%- if country.iso_code == localization.country.iso_code %}
+                        selected
+                      {% endif %}
+                    >
+                      {{ country.name }} ({{ country.currency.iso_code }}
+                      {{ country.currency.symbol }})
+                    </option>
+                  {%- endfor -%}
+                </select>
+                {% render 'icon-caret' %}
+              </div>
+              <button class="button button--tertiary">{{ 'localization.update_country' | t }}</button>
+            {%- endform -%}
+          </noscript>
+          <localization-form>
+            {%- form 'localization', id: 'FooterCountryForm', class: 'localization-form' -%}
+              <div class="no-js-hidden">
+                <div class="disclosure">
+                  <button
+                    type="button"
+                    class="disclosure__button localization-form__select localization-selector link link--text caption-large"
+                    aria-expanded="false"
+                    aria-controls="FooterCountryList"
+                    aria-describedby="FooterCountryLabel"
+                  >
+                    {{ localization.country.name }} {% comment %}({{ localization.country.currency.iso_code }}{% endcomment %}
+                   ({{ localization.country.currency.symbol }})
+                    {% render 'icon-caret' %}
+                  </button>
+                  <div class="disclosure__list-wrapper" hidden>
+                    <ul id="FooterCountryList" role="list" class="disclosure__list list-unstyled">
+                      {%- for country in localization.available_countries -%}
+                        <li class="disclosure__item" tabindex="-1">
+                          <a
+                            class="link link--text disclosure__link caption-large{% if country.iso_code == localization.country.iso_code %} disclosure__link--active{% endif %} focus-inset"
+                            href="#"
+                            {% if country.iso_code == localization.country.iso_code %}
+                              aria-current="true"
+                            {% endif %}
+                            data-value="{{ country.iso_code }}"
+                          >
+                            {{ country.name }}
+                            <span class="localization-form__currency"
+                              >({{ country.currency.iso_code }}
+                              {{ country.currency.symbol }})</span
+                            >
+                          </a>
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </div>
+                <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}">
+              </div>
+            {%- endform -%}
+          </localization-form>
+              </div>
+        {%- endif -%}
+        </div>
       </header-drawer>
     {%- endif -%}
 
@@ -444,9 +569,9 @@
               {%- if settings.predictive_search_enabled -%}
                 <predictive-search class="search-modal__form" data-loading-text="{{ 'accessibility.loading' | t }}">
               {%- else -%}
-                <search-form class="search-modal__form"> 
+                <search-form class="search-modal__form">
               {%- endif -%}
-                  <form action="{{ routes.search_url }}" method="get" role="search" class="search search-modal__form search-modal__form--border-light search-modal__form--polyfill search-modal__form--predictive" data-model="{{ settings.animations_type }}">
+                  <form action="{{ routes.search_url }}" method="get" role="search" class="search search-modal__form">
                     <div class="field">
                       <input class="search__input field__input"
                         id="Search-In-Modal-1"
@@ -518,22 +643,12 @@
               {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
               {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
               {{ settings.logo | image_url: width: 500 | image_tag:
-                class: 'header__heading-logo header__heading-logo--main motion-reduce',
+                class: 'header__heading-logo motion-reduce',
                 widths: '50, 100, 150, 200, 250, 300, 400, 500',
                 height: logo_height,
                 width: settings.logo_width,
                 alt: logo_alt
               }}
-              {%- if settings.secondary_logo != blank -%}
-                {%- assign secondary_logo_height = settings.logo_width | divided_by: settings.secondary_logo.aspect_ratio -%}
-                {{ settings.secondary_logo | image_url: width: 500 | image_tag:
-                  class: 'header__heading-logo header__heading-logo--secondary motion-reduce',
-                  widths: '50, 100, 150, 200, 250, 300, 400, 500',
-                  height: secondary_logo_height,
-                  width: settings.logo_width,
-                  alt: logo_alt
-                }}
-              {%- endif -%}
             {%- else -%}
               <span class="h2">{{ shop.name }}</span>
             {%- endif -%}
@@ -544,18 +659,16 @@
     {%- endif -%}
 
     {%- if section.settings.menu != blank -%}
-      <nav class="header__inline-menu">
-        <ul class="list-menu list-menu--inline" role="list">
-          {%- for link in section.settings.menu.links -%}
-            <li>
-              {%- if link.links != blank -%}
-                {% if section.settings.products_mega_menu_links contains link.title %}
-                  {% render 'products-mega-menu', link: link %}
-                {% else %}
+      {%- if section.settings.menu_type_desktop == 'dropdown' -%}
+        <nav class="{% if drawerOnDesktop %}hidden{% endif %} header__inline-menu accent-color-{{ section.settings.highlighted_link_color_scheme }}">
+          <ul class="list-menu list-menu--inline" role="list">
+            {%- for link in section.settings.menu.links -%}
+              <li>
+                {%- if link.links != blank -%}
                   <header-menu>
                     <details id="Details-HeaderMenu-{{ forloop.index }}">
-                      <summary class="header__menu-item list-menu__item link focus-inset">
-                        <span {%- if link.child_active %} class="header__active-menu-item"{% endif %}>{{ link.title | escape }}</span>
+                      <summary class="header__menu-item list-menu__item link focus-inset{%- if link.child_active %} header__active-menu-item{% endif %}">
+                        <span>{{ link.title | escape }}</span>
                         {% render 'icon-caret' %}
                       </summary>
                       <ul id="HeaderMenu-MenuList-{{ forloop.index }}" class="header__submenu list-menu list-menu--disclosure gradient caption-large motion-reduce global-settings-popup" role="list" tabindex="-1">
@@ -587,16 +700,61 @@
                       </ul>
                     </details>
                   </header-menu>
-                {% endif %}
-              {%- else -%}
-                <a href="{{ link.url }}" class="header__menu-item list-menu__item link link--text focus-inset"{% if link.current %} aria-current="page"{% endif %}>
-                  <span {%- if section.settings.highlight_active_link and link.current %} class="header__active-menu-item-v2 color-{{ section.settings.highlighted_link_color_scheme }}"{% endif %}>{{ link.title | escape }}</span>
-                </a>
-              {%- endif -%}
-            </li>
-          {%- endfor -%}
-        </ul>
-      </nav>
+                {%- else -%}
+                  <a href="{{ link.url }}" class="header__menu-item list-menu__item link link--text focus-inset"{% if link.current %} aria-current="page"{% endif %}>
+                    <span {%- if section.settings.highlight_active_link and link.current %} class="header__active-menu-item-v2 color-{{ section.settings.highlighted_link_color_scheme }}"{% endif %}>{{ link.title | escape }}</span>
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- else -%}
+        <nav class="header__inline-menu accent-color-{{ section.settings.highlighted_link_color_scheme }}">
+          <ul class="list-menu list-menu--inline" role="list">
+            {%- for link in section.settings.menu.links -%}
+              <li>
+                {%- if link.links != blank -%}
+                  <header-menu>
+                    <details id="Details-HeaderMenu-{{ forloop.index }}" class="mega-menu">
+                      <summary class="header__menu-item list-menu__item link focus-inset{%- if link.child_active %} header__active-menu-item{% endif %}">
+                        <span>{{ link.title | escape }}</span>
+                        {% render 'icon-caret' %}
+                      </summary>
+                      <div id="MegaMenu-Content-{{ forloop.index }}" class="mega-menu__content gradient motion-reduce global-settings-popup" tabindex="-1">
+                        <ul class="mega-menu__list page-width{% if link.levels == 1 %} mega-menu__list--condensed{% endif %}" role="list">
+                          {%- for childlink in link.links -%}
+                            <li>
+                              <a href="{{ childlink.url }}" class="mega-menu__link mega-menu__link--level-2 link{% if childlink.current %} mega-menu__link--active{% endif %}"{% if childlink.current %} aria-current="page"{% endif %}>
+                                {{ childlink.title | escape }}
+                              </a>
+                              {%- if childlink.links != blank -%}
+                                <ul class="list-unstyled" role="list">
+                                  {%- for grandchildlink in childlink.links -%}
+                                    <li>
+                                      <a href="{{ grandchildlink.url }}" class="mega-menu__link link{% if grandchildlink.current %} mega-menu__link--active{% endif %}"{% if grandchildlink.current %} aria-current="page"{% endif %}>
+                                        {{ grandchildlink.title | escape }}
+                                      </a>
+                                    </li>
+                                  {%- endfor -%}
+                                </ul>
+                              {%- endif -%}
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    </details>
+                  </header-menu>
+                {%- else -%}
+                  <a href="{{ link.url }}" class="header__menu-item list-menu__item link link--text focus-inset"{% if link.current %} aria-current="page"{% endif %}>
+                    <span {%- if section.settings.highlight_active_link and link.current %} class="header__active-menu-item-v2 color-{{ section.settings.highlighted_link_color_scheme }}"{% endif %}>{{ link.title | escape }}</span>
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </nav>
+      {%- endif -%}
     {%- endif -%}
 
     {%- if section.settings.logo_position == 'middle-center' -%}
@@ -608,22 +766,12 @@
               {%- assign logo_alt = settings.logo.alt | default: shop.name | escape -%}
               {%- assign logo_height = settings.logo_width | divided_by: settings.logo.aspect_ratio -%}
               {{ settings.logo | image_url: width: 500 | image_tag:
-                class: 'header__heading-logo header__heading-logo--main',
+                class: 'header__heading-logo',
                 widths: '50, 100, 150, 200, 250, 300, 400, 500',
                 height: logo_height,
                 width: settings.logo_width,
                 alt: logo_alt
               }}
-              {%- if settings.secondary_logo != blank -%}
-                {%- assign secondary_logo_height = settings.logo_width | divided_by: settings.secondary_logo.aspect_ratio -%}
-                {{ settings.secondary_logo | image_url: width: 500 | image_tag:
-                  class: 'header__heading-logo header__heading-logo--secondary',
-                  widths: '50, 100, 150, 200, 250, 300, 400, 500',
-                  height: secondary_logo_height,
-                  width: settings.logo_width,
-                  alt: logo_alt
-                }}
-              {%- endif -%}
             {%- else -%}
               <span class="h2">{{ shop.name }}</span>
             {%- endif -%}
@@ -650,11 +798,11 @@
             <div class="modal-overlay"></div>
             <div class="search-modal__content search-modal__content--right{% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_vertical_offset < 0 %} search-modal__content-top{% else %} search-modal__content-bottom{% endif %}" tabindex="-1">
               {%- if settings.predictive_search_enabled -%}
-                <predictive-search class="search-modal__form" data-main='false' data-loading-text="{{ 'accessibility.loading' | t }}">
+                <predictive-search class="search-modal__form" data-loading-text="{{ 'accessibility.loading' | t }}">
               {%- else -%}
-                <search-form class="search-modal__form" data-main='false'>
+                <search-form class="search-modal__form">
               {%- endif -%}
-                  <form action="{{ routes.search_url }}" method="get" role="search" class="search search-modal__form search-modal__form--border-light search-modal__form--polyfill search-modal__form--predictive" data-modal="{{ settings.animations_type }}">
+                  <form action="{{ routes.search_url }}" method="get" role="search" class="search search-modal__form search-modal__form--border-light search-modal__form--polyfill" data-search-value="{{ settings.icon_size }}">
                     <div class="field">
                       <input class="search__input field__input"
                         id="Search-In-Modal"
@@ -733,31 +881,27 @@
 
       <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart link focus-inset" id="cart-icon-bubble">
         {%- liquid
-          assign non_upsell_count = cart.item_count
-          for item in cart.items
-            if item.product.tags contains 'cart-hidden'
-              assign non_upsell_count = non_upsell_count | minus: 1
-            endif
-          endfor
-           
-          if non_upsell_count > 0
+          if cart == empty
             render 'icon-cart-empty'
           else
             render 'icon-cart'
           endif
         -%}
         <span class="visually-hidden">{{ 'templates.cart.cart' | t }}</span>
-        {%- if non_upsell_count > 0-%}
+        {%- if cart != empty -%}
           <div class="cart-count-bubble">
-            {%- if non_upsell_count < 100 -%}
-              <span aria-hidden="true">{{ non_upsell_count }}</span>
+            {%- if cart.item_count < 100 -%}
+              <span aria-hidden="true">{{ cart.item_count }}</span>
             {%- endif -%}
-            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: non_upsell_count }}</span>
+            <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
           </div>
         {%- endif -%}
       </a>
     </div>
   </header>
+{% if template.name contains 'product' or template.name contains 'collection' %}
+{% render 'lastChance' ,section:section %}
+{% endif %}                    
 </{% if section.settings.sticky_header_type != 'none' %}sticky-header{% else %}div{% endif %}>
 
 {%- if settings.cart_type == "notification" -%}
@@ -915,12 +1059,52 @@
     }
   </script>
 {%- endif -%}
-
+<script>document.addEventListener("startasyncloading",function(){document.querySelectorAll("script[data-src]").forEach(a=>{datasrc=a.dataset.src,null!=datasrc&&(a.src=datasrc), delete a.dataset.src})});</script>
 {% schema %}
 {
   "name": "t:sections.header.name",
   "class": "section-header",
   "settings": [
+    {
+      "type":"header",
+      "content":"Last Chance Bar"
+    },
+    {
+      "type":"checkbox",
+      "id":"lastChanceBar",
+      "label":"Last Chance Bar",
+      "default":true
+    },
+    {
+      "type":"color",
+      "id":"lastChanceBarColor",
+      "label":"Bar Color",
+      "default":"#ff3c3b"
+    },
+    {
+      "type":"color",
+      "id":"lastChanceBarTColor",
+      "label":"Bar Text Color",
+      "default":"#ffffff"
+    },
+    {
+      "type":"inline_richtext",
+      "label":"Bar Text",
+      "id":"BarText",
+      "default":"Last chance for the Halloween Discount:"
+    }, 
+    {
+      "type":"checkbox",
+      "id":"drawerOnDesktop",
+      "label":"Drawer on Desktop",
+      "default":true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": true,
+      "label": "Enable country/region selector"
+    },
     {
       "type": "header",
       "content": "Header"
@@ -1026,6 +1210,23 @@
       "label": "t:sections.header.settings.menu.label"
     },
     {
+      "type": "select",
+      "id": "menu_type_desktop",
+      "options": [
+        {
+          "value": "dropdown",
+          "label": "t:sections.header.settings.menu_type_desktop.options__1.label"
+        },
+        {
+          "value": "mega",
+          "label": "t:sections.header.settings.menu_type_desktop.options__2.label"
+        }
+      ],
+      "default": "dropdown",
+      "label": "t:sections.header.settings.menu_type_desktop.label",
+      "info": "t:sections.header.settings.menu_type_desktop.info"
+    },
+    {
       "type": "checkbox",
       "id": "highlight_active_link",
       "label": "Highlight active link on desktop",
@@ -1058,35 +1259,6 @@
       ],
       "default": "accent-1",
       "label": "Highlighted link color scheme"
-    },
-    {
-      "type": "header",
-      "content": "Products & Collections Mega Menu"
-    },
-    {
-      "type": "text",
-      "id": "products_mega_menu_links",
-      "label": "Links to display products & collections mega menu",
-      "info": "Labels of links separated by comma."
-    },
-    {
-      "type": "checkbox",
-      "id": "products_mega_menu_display_collection_products",
-      "label": "Display products that the collection contains",
-      "default": false,
-      "info": "If checked, every product from the sub-link collection will be displayed. Otherwise, add each individual product/collection as a nested link."
-    },
-    {
-      "type": "checkbox",
-      "id": "products_mega_menu_display_collection_images",
-      "label": "Display collection images on desktop",
-      "default": true
-    },
-    {
-      "type": "checkbox",
-      "id": "products_mega_menu_display_collection_images_on_mobile",
-      "label": "Display collection images on mobile",
-      "default": false
     },
     {
       "type": "header",

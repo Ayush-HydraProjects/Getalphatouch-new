@@ -18,6 +18,8 @@
   {% render 'card-product', show_vendor: section.settings.show_vendor %}
 {% endcomment %}
 
+{{ 'component-rating.css' | asset_url | stylesheet_tag }}
+
 {%- if card_product and card_product != empty -%}
   {%- liquid
     assign ratio = 1
@@ -127,18 +129,14 @@
                 {{- 'products.product.sold_out' | t -}}
               </span>
             {%- elsif card_product.compare_at_price > card_product.price and card_product.available -%}
-              {% if settings.sale_badge_text != blank %}
-                <span
-                  id="NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}"
-                  class="badge badge--bottom-left color-{{ settings.sale_badge_color_scheme }}"
-                >
-                  {% assign percentage_saved = card_product.compare_at_price | minus: card_product.price | times: 100.0 | divided_by: card_product.compare_at_price | floor | append: '%' %}
-                  {% capture money_saved %}
-                    {{ card_product.compare_at_price | minus: card_product.price | money_without_trailing_zeros }}
-                  {% endcapture %}
-                  {% if settings.sale_basge_discount_icon %}{% render 'icon-discount' %}{% endif %}<span class='nowrap'>{{ settings.sale_badge_text | replace: '[percentage]', percentage_saved | replace: '[amount]', money_saved }}</span>
-                </span>
-              {%- endif -%}
+              <span
+                id="NoMediaStandardBadge-{{ section_id }}-{{ card_product.id }}"
+                class="badge badge--bottom-left color-{{ settings.sale_badge_color_scheme }}"
+              >
+                {% assign percentage_saved = card_product.compare_at_price | minus: card_product.price | times: 100.0 | divided_by: card_product.compare_at_price | floor %}
+                {% assign percentage_saved_string = percentage_saved | append: '%' %}
+                {% render 'icon-discount' %} <span class='nowrap'>{{ settings.sale_badge_text | replace: '[percentage]', percentage_saved_string }}</span>
+              </span>
             {%- endif -%}
           </div>
         </div>
@@ -204,7 +202,8 @@
               </p>
             {%- endif -%}
 
-            {% render 'price', product: card_product, price_class: '', hide_currency_code: true %}
+            <div class="loox-rating" data-id="{{ card_product.id }}" data-rating="{{ card_product.metafields.loox.avg_rating }}" data-raters="{{ card_product.metafields.loox.num_reviews }}"></div>
+{% render 'price', product: card_product, price_class: '', hide_currency_code: true %}
           </div>
         </div>
         {%- if show_quick_add -%}

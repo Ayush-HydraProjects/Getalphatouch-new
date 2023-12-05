@@ -1,5 +1,12 @@
-.pricing-table--has-content {
-  margin-top: 3rem;
+.multicolumn .multicolumn-title-with-text {
+  margin-bottom: 0.5rem;
+}
+.multicolumn-text {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.multicolumn-text p:first-child {
+  margin-top: 0;
 }
 
 .pricing-table {
@@ -7,12 +14,13 @@
   justify-content: center;
   flex-wrap: wrap;
   row-gap: 5rem;
+  padding-top: 1rem;
 }
 
 .plan-card {
   width: 100%;
   max-width: 32rem;
-  box-shadow: 0.3rem 0.3rem 1rem rgba(var(--color-base-text), 0.2);
+  box-shadow: 0.5rem 0.5rem 1.5rem rgba(var(--color-base-text), 0.3);
   position: relative;
 }
 
@@ -29,32 +37,46 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-.plan-card__icon {
-  --icon-size: 3rem;
+
+.plan-card__icon svg {
+  fill: rgb(var(--color-foreground));
 }
-.plan-card__icon--medium {
-  --icon-size: 4.5rem;
+
+.plan-card .plan-card__icon--small img {
+  max-width: 3rem;
+  width: 100%;
 }
-.plan-card__icon--large {
-  --icon-size: 6rem;
+
+.plan-card .plan-card__icon--small svg {
+  width: 3rem;
+  height: 3rem;
 }
-.plan-card__icon img {
-  width: var(--icon-size);
+
+.plan-card .plan-card__icon--medium img {
+  max-width: 4.5rem;
+  width: 100%;
 }
-.plan-card__icon .material-icon {
-  font-size: var(--icon-size);
+
+.plan-card .plan-card__icon--medium svg {
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.plan-card .plan-card__icon--large img {
+  max-width: 6rem;
+  width: 100%;
+}
+
+.plan-card .plan-card__icon--large svg {
+  width: 6rem;
+  height: 6rem;
 }
 
 .plan-card__title {
   margin: 0;
   font-size: 2rem;
 }
-.plan-card__image {
-  margin-bottom: 1.5rem;
-}
-.plan-card__image img {
-  border-radius: 1rem 1rem 0 0;
-}
+
 .pricing-plan__desc,
 .pricing-plan__benefits {
   padding: 0 2rem;
@@ -104,7 +126,6 @@
   display: flex;
   justify-content: center;
   padding: 0 2rem;
-  background: none;
 }
 
 .plan-card-style-1 .plan-card__icon,
@@ -200,11 +221,13 @@
 .plan-card-style-3 .plan-card__price-container span {
   display: inline;
 }
+
 .plan-card-style-3 {
   background: none;
   box-shadow: none;
   border-radius: 0;
 }
+
 .plan-card-style-3 .plan-card__top {
   padding: 2.5rem 2rem 4.5rem;
   margin-bottom: -2.5rem;
@@ -212,17 +235,16 @@
   position: relative;
   text-align: center;
 }
+
 .plan-card-style-3 .plan-card__title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
 }
-.plan-card-style-3 .plan-card__image {
-  margin-left: -2rem;
-  margin-right: -2rem;
-}
+
 .plan-card-style-3 .plan-card__price {
   font-size: 2rem;
 }
+
 .plan-card-style-3 .plan-card__bottom {
   background: rgb(var(--color-background));
   margin: 0 1rem;
@@ -232,15 +254,19 @@
   padding-top: 3rem;
   position: relative;
 }
+
 .plan-card-style-3 .plan-card__bottom--icon-small {
   padding-top: 4rem;
 }
+
 .plan-card-style-3 .plan-card__bottom--icon-medium {
   padding-top: 5rem;
 }
+
 .plan-card-style-3 .plan-card__bottom--icon-large {
   padding-top: 7rem;
 }
+
 .plan-card-style-3 .plan-card__icon {
   position: absolute;
   left: 2.5rem;
@@ -249,35 +275,41 @@
   box-shadow: 0.1rem 0.1rem 0.75rem rgba(var(--color-base-text), 0.3);
   border-radius: 0.5rem;
   overflow: hidden;
-  padding: calc(var(--icon-size) * 0.1);
 }
-.plan-card-style-3 .plan-card__icon img {
-  font-size: calc(var(--icon-size) * 0.8);
-  height: calc(var(--icon-size) * 0.8);
+
+.plan-card-style-3 .plan-card__icon svg {
+  padding: 0.9rem;
+}
+
+..plan-card-style-3 .plan-card__icon img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-fit: contain;
 }
-.plan-card-style-3 .plan-card__icon .material-icon {
-  font-size: calc(var(--icon-size) * 0.8);
-}
+
 .plan-card-style-3 .plan-card__icon--small {
-  --icon-size: 3rem;
+  width: 3rem;
+  height: 3rem;
 }
+
 .plan-card-style-3 .plan-card__icon--medium {
-  --icon-size: 4.5rem;
+  width: 4.5rem;
+  height: 4.5rem;
 }
+
 .plan-card-style-3 .plan-card__icon--large {
-  --icon-size: 6rem;
+  width: 6rem;
+  height: 6rem;
 }
-.plan-card__btn .button {
+
+.plan-card__btn {
+  background: none;
   --color-button: var(--color-background);
   --color-button-text: var(--color-foreground);
 }
+
 .plan-card__btn .button--secondary {
   --color-button-text: var(--color-background);
   --color-button: var(--color-foreground);
-}
-.plan-card--has-image,
-.plan-card--has-image .plan-card__top {
-  padding-top: 0;
 }

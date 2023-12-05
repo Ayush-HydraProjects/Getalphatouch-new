@@ -1,3 +1,5 @@
+{{ 'section-contact-form.css' | asset_url | stylesheet_tag }}
+
 {%- style -%}
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
@@ -12,22 +14,37 @@
   }
 {%- endstyle -%}
 
-<div class="color-{{ section.settings.color_scheme }} gradient content-for-grouping animate-section animate--hidden {{ section.settings.visibility }}">
-  {% if section.settings.display_id %}
-    <copy-button class='section-id-btn button' data-content="#shopify-section-{{ section.id }}" data-success="false">
-      <span class="copy-text">Click to copy section ID</span>
-      <span class="copy-success">ID copied successfully!</span>
-    </copy-button>
-  {% endif %}
+<div class="color-{{ section.settings.color_scheme }} gradient contact_page">
   <div class="contact page-width page-width--narrow section-{{ section.id }}-padding">
     {%- if section.settings.heading != blank -%}
-      <h2 class="title title-wrapper--no-top-margin {{ section.settings.heading_size }} animate-item animate-item--child index-0">
+      <h2 class="title title-wrapper--no-top-margin {{ section.settings.heading_size }}">
         {{ section.settings.heading | escape }}
       </h2>
     {%- else -%}
       <h2 class="visually-hidden">{{ 'templates.contact.form.title' | t }}</h2>
     {%- endif -%}
-    {%- form 'contact', id: 'ContactForm', class: 'isolate animate-item animate-item--child index-1' -%}
+      <div class="contact_faq">
+    {%- for block in section.blocks -%}
+        <div class="contact_faq_qa_an">
+        {% if block.settings.faq_question != blank %}
+          <div class="contact_faq_qu">
+            <h4 class="contact_faq_qu_title">{{ block.settings.faq_question }}</h4>  
+            <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="faq_icon">
+            <path d="M10 7L15 12L10 17" stroke="#000000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          {% endif %}
+      
+          {% if block.settings.faq_answer != blank %}
+            <div class="contact_faq_an">    
+              {{ block.settings.faq_answer }}
+            </div> 
+          {% endif %}
+        </div>
+    {% endfor %}
+      </div>
+    <div class="contact_form">
+    {%- form 'contact', id: 'ContactForm', class: 'isolate' -%}
       {%- if form.posted_successfully? -%}
         <h2 class="form-status form-status-list form__message" tabindex="-1" autofocus>
           {% render 'icon-success' %}
@@ -128,6 +145,7 @@
         </button>
       </div>
     {%- endform -%}
+            </div>
   </div>
 </div>
 
@@ -140,37 +158,6 @@
     "groups": ["header", "footer"]
   },
   "settings": [
-    {
-      "type": "checkbox",
-      "id": "display_id",
-      "label": "Display section ID",
-      "info": "ID is used in the Sections group section to merge 2 sections. ID can also be put inside any button link and the button will scroll to this section.",
-      "default": false
-    },
-    {
-      "type": "select",
-      "id": "visibility",
-      "options": [
-        {
-          "value": "desktop-hidden",
-          "label": "Mobile only"
-        },
-        {
-          "value": "mobile-hidden",
-          "label": "Desktop only"
-        },
-        {
-          "value": "always-display",
-          "label": "All devices"
-        }
-      ],
-      "label": "Display on",
-      "default": "always-display"
-    },
-    {
-      "type": "header",
-      "content": "General"
-    },
     {
       "type": "text",
       "id": "heading",
@@ -256,6 +243,26 @@
       "default": 36
     }
   ],
+  "blocks": [
+    {
+      "type": "contact-faq",
+      "name": "Contact FAQ",
+      "settings": [
+        {
+          "type":"text",
+          "id":"faq_question",
+          "label":"FAQ Question",
+          "default":"Add question"
+        },
+        {
+          "type":"richtext",
+          "id":"faq_answer",
+          "label":"FAQ Answer",
+          "default":"<p>add Answer</p>"
+        }
+      ]
+    }
+  ],
   "presets": [
     {
       "name": "t:sections.contact-form.presets.name"
@@ -263,3 +270,31 @@
   ]
 }
 {% endschema %}
+<script>
+  var faq_question = document.querySelectorAll(".contact_faq_qu");
+  for (var i = 0; i < faq_question.length; i++) {
+    faq_question[i].addEventListener("click", function() {
+
+
+      if(this.classList.contains('show')){
+     for (var i = 0; i < faq_question.length; i++) {
+        faq_question[i].classList.remove('show');
+        faq_question[i].querySelector('svg').classList.remove('rotate');
+        faq_question[i].parentNode.querySelector('.contact_faq_an').classList.remove('show');
+         }
+      }else{
+           
+              for (var i = 0; i < faq_question.length; i++) {
+                faq_question[i].classList.remove('show');
+                 faq_question[i].querySelector('svg').classList.remove('rotate');
+                faq_question[i].parentNode.querySelector('.contact_faq_an').classList.remove('show');
+              }
+        
+        this.classList.add('show');
+        this.querySelector('svg').classList.add('rotate');
+        this.parentNode.querySelector('.contact_faq_an').classList.add('show');
+      }
+    });
+
+  }
+</script>
