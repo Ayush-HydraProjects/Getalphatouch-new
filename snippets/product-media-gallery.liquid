@@ -45,6 +45,7 @@
 
 <media-gallery
   id="MediaGallery-{{ section.id }}{{ id_append }}"
+  data-section="{{ section.id }}"
   role="region"
   aria-label="{{ 'products.product.media.gallery_viewer' | t }}"
   data-desktop-layout="{{ section.settings.gallery_layout }}"
@@ -61,7 +62,7 @@
       class="product__media-list contains-media grid grid--peek list-unstyled slider slider--mobile{% if section.settings.gallery_layout == 'thumbnail' or section.settings.gallery_layout == 'thumbnail_slider'%} gallery-slider--desktop{% endif %}{% if section.settings.mobile_spacing == false %} slider--mobile-no-spacing{% endif %}{% if section.settings.mobile_preview_media == false %} slider--mobile-no-preview{% endif %}"
       role="list"
     >
-      {%- if product.selected_or_first_available_variant.featured_media != null -%}
+      {%- if product.selected_or_first_available_variant.featured_media != null and section.settings.display_variant_image_first -%}
         {%- assign featured_media = product.selected_or_first_available_variant.featured_media -%}
         <li
           id="Slide-{{ section.id }}-{{ featured_media.id }}{{ id_append }}"
@@ -88,7 +89,7 @@
         </li>
       {%- endif -%}
       {%- for media in product.media -%}
-        {%- unless media.id == product.selected_or_first_available_variant.featured_media.id -%}
+        {%- if media.id != product.selected_or_first_available_variant.featured_media.id or section.settings.display_variant_image_first == false -%}
           <li
             id="Slide-{{ section.id }}-{{ media.id }}{{ id_append }}"
             class="product__media-item grid__item slider__slide{% if single_media_visible %} product__media-item--single{% endif %}{% if product.selected_or_first_available_variant.featured_media == null and forloop.index == 1 %} is-active{% endif %}{% if media.media_type != 'image' %} product__media-item--full{% endif %}{% if section.settings.hide_variants and variant_images contains media.src %} product__media-item--variant{% endif %}"
@@ -118,7 +119,7 @@
               section
             %}
           </li>
-        {%- endunless -%}
+        {%- endif -%}
       {%- endfor -%}
     </ul>
     {%- unless is_duplicate -%}
@@ -203,7 +204,7 @@
           calc((100vw - 8rem) / 3)
         {%- endcapture -%}
 
-        {%- if featured_media != null -%}
+        {%- if featured_media != null and section.settings.display_variant_image_first -%}
           {%- liquid
             capture media_index
               if featured_media.media_type == 'model'
@@ -247,7 +248,7 @@
           </li>
         {%- endif -%}
         {%- for media in product.media -%}
-          {%- unless media.id == product.selected_or_first_available_variant.featured_media.id -%}
+          {%- if media.id != product.selected_or_first_available_variant.featured_media.id or section.settings.display_variant_image_first == false -%}
             {%- liquid
               capture media_index
                 if media.media_type == 'model'
@@ -278,13 +279,22 @@
               {%- capture thumbnail_id -%}
                 Thumbnail-{{ section.id }}-{{ forloop.index }}{{ id_append }}
               {%- endcapture -%}
+              {% liquid
+                assign is_current = false
+                if featured_media
+                  if section.settings.display_variant_image_first and media == product.selected_or_first_available_variant.featured_media
+                    assign is_current = true
+                  endif
+                else
+                  if forloop.index == 1
+                    assign is_current = true
+                  endif
+                endif
+              %}
               <button
                 class="thumbnail global-media-settings global-media-settings--no-shadow"
                 aria-label="{%- if media.media_type == 'image' -%}{{ 'products.product.media.load_image' | t: index: media_index }}{%- elsif media.media_type == 'model' -%}{{ 'products.product.media.load_model' | t: index: media_index }}{%- elsif media.media_type == 'video' or media.media_type == 'external_video' -%}{{ 'products.product.media.load_video' | t: index: media_index }}{%- endif -%}"
-                {% if media == product.selected_or_first_available_variant.featured_media
-                  or product.selected_or_first_available_variant.featured_media == null
-                  and forloop.index == 1
-                %}
+                {% if is_current %}
                   aria-current="true"
                 {% endif %}
                 aria-controls="GalleryViewer-{{ section.id }}{{ id_append }}"
@@ -303,7 +313,7 @@
                 }}
               </button>
             </li>
-          {%- endunless -%}
+          {%- endif -%}
         {%- endfor -%}
       </ul>
       <button

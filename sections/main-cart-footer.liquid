@@ -1,8 +1,3 @@
-{{ 'component-cart.css' | asset_url | stylesheet_tag }}
-{{ 'component-totals.css' | asset_url | stylesheet_tag }}
-{{ 'component-price.css' | asset_url | stylesheet_tag }}
-{{ 'component-discounts.css' | asset_url | stylesheet_tag }}
-
 <div class="page-width{% if cart == empty %} is-empty{% endif %}" id="main-cart-footer" data-id="{{ section.id }}">
   <div>
     <div class="cart__footer">
@@ -46,7 +41,7 @@
                 </div>
               </div>
             {% when 'discount_field' %}
-              {% render 'cart-discount-field' %}
+              {% render 'cart-discount-field', block: block %}
             {%- else -%}
               <div class="cart__ctas" {{ block.shopify_attributes }}>
                 <noscript>
@@ -112,7 +107,28 @@
     {
       "type": "discount_field",
       "name": "Discount field",
-      "limit": 1
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "placeholder",
+          "label": "Input placeholder",
+          "default": "Enter discount code"
+        },
+        {
+          "type": "text",
+          "id": "btn_label",
+          "label": "Button label",
+          "default": "ADD"
+        },
+        {
+          "type": "text",
+          "id": "error_msg",
+          "label": "Error message",
+          "default": "Please enter a discount code!",
+          "info": "Displayed if add button is clicked while the input is empty."
+        }
+      ]
     },
     {
       "type": "subtotal",

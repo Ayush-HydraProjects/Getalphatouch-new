@@ -1,11 +1,17 @@
 {% style %}
   .music-player-{{ section.id }} {
-    --offset-x: {{ section.settings.offset_x }}px;
-    --offset-y: {{ section.settings.offset_y }}px;
+    --offset-x: {{ section.settings.offset_x | divided_by: 10.0 }}rem;
+    --offset-y: {{ section.settings.offset_y | divided_by: 10.0 }}rem;
+  }
+  @media screen and (max-width: 749px) {
+    .music-player-{{ section.id }} {
+      --offset-x: {{ section.settings.offset_x | times: 0.75 | divided_by: 10.0 }}rem;
+      --offset-y: {{ section.settings.offset_y | times: 0.75 | divided_by: 10.0 }}rem;
+    }
   }
 {% endstyle %}
 
-<div class="music-player music-player-{{ section.settings.position }} music-player-{{ section.id }}">
+<div class="floating-btn music-player music-player-{{ section.settings.position }} music-player-{{ section.id }}">
   <audio
     loop
     volume="{{ section.settings.volume | divided_by: 100.00 }}"
@@ -14,7 +20,7 @@
   ></audio>
   <button
     onclick="handleMusicPlayer(event)"
-    class="music-player__btn music-player__btn--paused{% if section.settings.btn_animation %} music-player__btn--animation{% endif %} color-{{ section.settings.color_scheme }}"
+    class="music-player__btn music-player__btn--paused{% if section.settings.btn_animation %} ripple-animation{% endif %} color-{{ section.settings.color_scheme }}"
     {% if section.settings.audio_src == blank %}
       disabled
     {% endif %}
@@ -40,51 +46,22 @@
 </div>
 
 <script>
-  var mscStickyATCAfterScroll = false;
-  document.addEventListener('DOMContentLoaded', function() {
-    const mscStickyATC = document.querySelector('.sticky-atc');
-    if (mscStickyATC && !(mscStickyATC.classList.contains('sticky-atc--after-scroll'))) {
-      // always active sticky atc
-      document.querySelector('.music-player').style.bottom = ({{ section.settings.offset_y}} + mscStickyATC.clientHeight) + 'px';
-      return;
-    } else if (mscStickyATC && mscStickyATC.classList.contains('sticky-atc--after-scroll')) {
-      // sticky atc after scroll
-      mscStickyATCAfterScroll = true;
-      mscCheckForActiveStickyATC();
-      return;
-    }
-  })
-
-  function mscCheckForActiveStickyATC() {
-    const mscStickyATC = document.querySelector('.sticky-atc--after-scroll');
-    if (!mscStickyATC) return;
-    if (mscStickyATC.classList.contains('sticky-atc--active')) {
-        document.querySelector('.music-player').style.bottom = ({{ section.settings.offset_y}} + mscStickyATC.clientHeight) + 'px';
-    } else {
-      document.querySelector('.music-player').style.bottom = {{ section.settings.offset_y}} + 'px';
-    }
-  }
-
-  window.addEventListener('scroll', function() {
-    if (mscStickyATCAfterScroll) mscCheckForActiveStickyATC();
-  })
-
   let musicPlaying = false;
   function handleMusicPlayer(e) {
     const musicPlayerBtn = e.target;
     const musicPlayer = musicPlayerBtn.closest('.music-player');
     const musicPlayerAudio = musicPlayer.querySelector('.music-player__audio');
-      if (musicPlaying) {
-          musicPlaying = false;
-          musicPlayerAudio.pause();
-          musicPlayerBtn.classList.remove('music-player__btn--playing');
-          musicPlayerBtn.classList.add('music-player__btn--paused');
-      } else {
-          musicPlayerAudio.play();
-          musicPlaying = true;
-          musicPlayerBtn.classList.remove('music-player__btn--paused');
-          musicPlayerBtn.classList.add('music-player__btn--playing');
-      }
+    if (musicPlaying) {
+      musicPlaying = false;
+      musicPlayerAudio.pause();
+      musicPlayerBtn.classList.remove('music-player__btn--playing');
+      musicPlayerBtn.classList.add('music-player__btn--paused');
+    } else {
+      musicPlayerAudio.play();
+      musicPlaying = true;
+      musicPlayerBtn.classList.remove('music-player__btn--paused');
+      musicPlayerBtn.classList.add('music-player__btn--playing');
+    }
   }
 </script>
 
