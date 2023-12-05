@@ -1,4 +1,5 @@
 {{ 'section-bundle-deals.css' | asset_url | stylesheet_tag }}
+
 {%- style -%}
   .section-{{ section.id }}-padding {
     padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
@@ -17,13 +18,7 @@
   }
 {%- endstyle -%}
 
-<div class="color-{{ section.settings.color_scheme }} content-for-grouping animate-section animate--hidden {{ section.settings.visibility }}">
-  {% if section.settings.display_id %}
-    <copy-button class='section-id-btn button' data-content="#shopify-section-{{ section.id }}" data-success="false">
-      <span class="copy-text">Click to copy section ID</span>
-      <span class="copy-success">ID copied successfully!</span>
-    </copy-button>
-  {% endif %}
+<div class="color-{{ section.settings.color_scheme }} content-for-grouping animate-section animate--hidden">
   <div class="page-width section-{{ section.id }}-padding">
     {% assign content_index = 0 %}
     <div class="animate-item animate-item--child index-0">
@@ -33,6 +28,11 @@
           <h2 class="title {{ section.settings.heading_size }}">
             {{ section.settings.title | escape }}
           </h2>
+          {%- if section.settings.button_label != blank and show_mobile_slider -%}
+            <a href="{{ section.settings.button_link }}" class="link underlined-link large-up-hide">
+              {{- section.settings.button_label | escape -}}
+            </a>
+          {%- endif -%}
         </div>
       {%- endunless -%}
       {% if section.settings.text != blank %}
@@ -43,14 +43,10 @@
       {% endif %}
     </div>
 
-    {% assign total_percentage_left_multiplier = 100.0 | minus: section.settings.percentage_discount | divided_by: 100.0 %}
-    {% assign total_fixed_discount = section.settings.fixed_amount_discount | times: 100.0 %}
     <bundle-deals
       id="bundle-deals-{{ section.id }}"
       class="bundle-deals bundle-deals-{{ section.id }} bundle-deals-{{ section.settings.layout }}"
       data-section="{{ section.id }}"
-      data-percentage-left="{{ total_percentage_left_multiplier }}"
-      data-fixed-discount="{{ total_fixed_discount }}"
       data-currency-symbol="{{ cart.currency.symbol }}"
       data-update-prices="{{ section.settings.enable_price_changes }}"
     >
@@ -64,7 +60,7 @@
             {% if product != blank and product.featured_image != blank %}
               <a
                 href="{{ product.url }}"
-                class="bundle-deals__media-item-container bundle-deals__media-item-container-js"
+                class="bundle-deals__media-item-container"
               >
                 <img
                   src="{{ product.featured_image | image_url: width: 800 }}"
@@ -72,7 +68,7 @@
                   loading="lazy"
                   width="auto"
                   height="auto"
-                  class="bundle-deals__media-item-img bundle-deals__media-item-img-js"
+                  class="bundle-deals__media-item-img"
                 >
               </a>
             {% else %}
@@ -82,44 +78,29 @@
         {% endfor %}
       </div>
       <div class="bundle-deals__center animate-item animate-item--child index-{{ content_index | plus: 1 }}">
-        {% liquid 
-          assign items_count = 0
-          assign total_compare_price = 0
-          assign total_price = 0
-        %}
+        {% assign items_count = 0 %}
+
         {% for block in section.blocks %}
           {% assign product = block.settings.product %}
 
           {% if product != blank %}
-            {% liquid
-              assign items_count = items_count | plus: 1
-              assign percentage_left_multiplier = 100.0 | minus: block.settings.percentage_discount | divided_by: 100.0
-              assign fixed_discount = block.settings.fixed_amount_discount | times: 100.0
-              assign price = product.selected_or_first_available_variant.price | times: percentage_left_multiplier | minus: fixed_discount
-              if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price
-                assign compare_price = product.selected_or_first_available_variant.compare_at_price
-              else 
-                assign compare_price = product.selected_or_first_available_variant.price
-              endif
-              assign total_price = total_price | plus: price
-              assign total_compare_price = total_compare_price | plus: compare_price
-            %}
+            {% assign items_count = items_count | plus: 1 %}
 
-            <div class="bundle-deals__product bundle-deals__product-js">
-              <div class="bundle-deals__checkbox-container{% if product.has_only_default_variant and section.settings.prices_under %} bundle-deals__checkbox-container--price-under{% endif %}">
+            <div class="bundle-deals__product">
+              <div class="bundle-deals__checkbox-container">
                 <input
                   type="checkbox"
-                  class="bundle-deals__checkbox bundle-deals__checkbox-js visually-hidden"
+                  class="bundle-deals__checkbox"
                   id="checkbox-{{ forloop.index0 }}"
                   data-id="{{ product.selected_or_first_available_variant.id }}"
-                  data-price="{{ price }}"
-                  data-compare-price="{{ compare_price }} "
+                  data-price="{{ product.price }}"
+                  data-compare-price="{% if product.compare_at_price > product.price %}{{ product.compare_at_price }}{% else %}{{ product.price }}{% endif %}"
                   data-index="{{ forloop.index0 }}"
                   data-id-index="id_{{ forloop.index0 }}"
                   data-checked="true"
                   checked
                 >
-                <label for="checkbox-{{ forloop.index0 }}" class="bundle-deals__checkbox-label h4">
+                <label for="checkbox-{{ forloop.index0 }}" class="bundle-deals__checkbox-label">
                   <svg
                     class="checkmark-checked"
                     xmlns="http://www.w3.org/2000/svg"
@@ -144,36 +125,54 @@
                     {{ product.title }}
                   </p>
                 </label>
-                <div class="bundle-deals__prices">
-                  <span class="bundle-deals__price bundle-deals__price-js regular-price">{{ price | money }}</span>
-                  <span class="bundle-deals__compare-price bundle-deals__compare-price-js compare-price">{% if compare_price > price %}{{ compare_price | money }}{% endif %}</span>
-                </div>
               </div>
               <div class="bundle-deals__info">
                 {% if product.has_only_default_variant == false %}
-                  <div class="bundle-deals__variant-selects bundle-deals__variant-selects-js" data-index="{{ forloop.index0 }}" data-id-index="id_{{ forloop.index0 }}">
-                    {%- for option in product.options_with_values -%}
-                      <div class="select select--small no-background color-{{ settings.pickers_color_scheme }} accent-color-{{ settings.pickers_overlay_color }} accent-2-color-{{ settings.pickers_text_color }}">
-                        <select class="select__select">
-                          {% for value in option.values %}
-                            <option
-                              value="{{ value | escape }}"
-                              {% if option.selected_value == value %}
-                                selected="selected"
-                              {% endif %}
-                            >
-                              {{- value -}}
-                            </option>
-                          {% endfor %}
-                        </select>
-                        {% render 'icon-caret' %}
-                      </div>
-                    {%- endfor -%}
-                    <script type="application/json">
-                      {{ product.variants | json }}
-                    </script>
+                  <div class="bundle-deals__variant-select-container select select--small">
+                    <select
+                      class="bundle-deals__variant-select select__select variant-dropdown"
+                      name="id"
+                      aria-label="Select variant"
+                      data-index="{{ forloop.index0 }}"
+                      data-id-index="id_{{ forloop.index0 }}"
+                    >
+                      {% for variant in product.variants %}
+                        <option
+                          value="{{ variant.id }}"
+                          data-price="{{ variant.price }}"
+                          data-compare-price="{% if variant.compare_at_price > variant.price %}{{ variant.compare_at_price }}{% else %}{{ variant.price }}{% endif %}"
+                          {% if variant.image %}
+                            {% assign variant_image = variant.image | image_url %}
+                            data-image="{{ variant_image }}"
+                          {% endif %}
+                          {% if product.selected_or_first_available_variant.id == variant.id %}
+                            selected
+                          {% endif %}
+                          {% unless variant.available %}
+                            disabled
+                          {% endunless %}
+                        >
+                          {{ variant.title }}
+                        </option>
+                      {% endfor %}
+                    </select>
                   </div>
+                  <script id="prices-{{ section.id }}-{{ forloop.index0 }}" type="application/json">
+                    {
+                      {% for variant in product.variants %}
+                        "{{ variant.id }}": "{{ variant.price | money_without_currency }}"{% if forloop.index < product.variants.size %},{% endif %}
+                      {% endfor %}
+                    }
+                  </script>
                 {% endif %}
+                <div class="bundle-deals__prices">
+                  <span class="bundle-deals__price">
+                    {{ product.price | money }}
+                  </span>
+                  <span class="bundle-deals__compare-price">
+                    {%- if product.compare_at_price > product.price %}{{ product.compare_at_price | money }}{% endif -%}
+                  </span>
+                </div>
               </div>
             </div>
           {% endif %}
@@ -182,11 +181,27 @@
       <div class="bundle-deals__empty"></div>
       <div class="bundle-deals__button animate-item animate-item--child index-{{ content_index | plus: 1 }}">
         {% if items_count == section.blocks.size %}
+          {% assign total_price = 0 %}
+          {% assign total_compare_price = 0 %}
+
+          {% for block in section.blocks %}
+            {% if block.settings.product != blank %}
+              {% assign total_price = total_price | plus: block.settings.product.price %}
+              {% assign current_item_compare_price = block.settings.product.price %}
+              {% if block.settings.product.compare_at_price > block.settings.product.price %}
+                {% assign current_item_compare_price = block.settings.product.compare_at_price %}
+              {% endif %}
+              {% assign total_compare_price = total_compare_price | plus: current_item_compare_price %}
+            {% endif %}
+          {% endfor %}
+
           <p class="bundle-deals__total-price-container">
             <span>{{ section.settings.total_price_label }}</span>
             <span>
-              <span class="bundle-deals__total-price bundle-deals__total-price-js regular-price">{{ total_price | times: total_percentage_left_multiplier | minus: total_fixed_discount | money }}</span>
-              <span class="bundle-deals__total-compare-price bundle-deals__total-compare-price-js compare-price">{%- if total_compare_price > total_price %}{{ total_compare_price | money }}{% endif -%}</span>
+              <span class="bundle-deals__total-price">{{ total_price | money }}</span>
+              <span class="bundle-deals__total-compare-price">
+                {%- if total_compare_price > total_price %}{{ total_compare_price | money }}{% endif -%}
+              </span>
             </span>
           </p>
           <product-form class="product-form" data-section="{{ section.id }}">
@@ -257,38 +272,8 @@
 {% schema %}
 {
   "name": "Bundle deals",
+  "limit": 1,
   "settings": [
-    {
-      "type": "checkbox",
-      "id": "display_id",
-      "label": "Display section ID",
-      "info": "ID is used in the Sections group section to merge 2 sections. ID can also be put inside any button link and the button will scroll to this section.",
-      "default": false
-    },
-    {
-      "type": "select",
-      "id": "visibility",
-      "options": [
-        {
-          "value": "desktop-hidden",
-          "label": "Mobile only"
-        },
-        {
-          "value": "mobile-hidden",
-          "label": "Desktop only"
-        },
-        {
-          "value": "always-display",
-          "label": "All devices"
-        }
-      ],
-      "label": "Display on",
-      "default": "always-display"
-    },
-    {
-      "type": "header",
-      "content": "General"
-    },
     {
       "type": "text",
       "id": "title",
@@ -381,12 +366,6 @@
     },
     {
       "type": "checkbox",
-      "id": "prices_under",
-      "label": "Dispaly price under the title for products without a variant picker",
-      "default": true
-    },
-    {
-      "type": "checkbox",
       "id": "skip_cart",
       "label": "Skip cart",
       "default": false,
@@ -403,24 +382,6 @@
       "id": "btn_label",
       "label": "Add to cart button label",
       "default": "Add selected to cart"
-    },
-    {
-      "type": "header",
-      "content": "Discounts"
-    },
-    {
-      "type": "text",
-      "id": "percentage_discount",
-      "label": "Percentage discount",
-      "default": "0",
-      "info": "Percentae to be discounted from the total price, WITHOUT the % symbol."
-    },
-    {
-      "type": "text",
-      "id": "fixed_amount_discount",
-      "label": "Fixed amount discount",
-      "default": "0",
-      "info": "Fixed amount of money to be discounted from the total price, WITHOUT the currency symbol."
     },
     {
       "type": "header",
@@ -457,20 +418,6 @@
           "type": "product",
           "id": "product",
           "label": "Product"
-        },
-        {
-          "type": "text",
-          "id": "percentage_discount",
-          "label": "Percentage discount",
-          "default": "0",
-          "info": "Percentae to be discounted from the total price, WITHOUT the % symbol."
-        },
-        {
-          "type": "text",
-          "id": "fixed_amount_discount",
-          "label": "Fixed amount discount",
-          "default": "0",
-          "info": "Fixed amount of money to be discounted from the total price, WITHOUT the currency symbol."
         }
       ]
     }

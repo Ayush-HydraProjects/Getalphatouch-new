@@ -19,70 +19,40 @@
   }
 {%- endstyle -%}
 
-<div class="color-{{ section.settings.color_scheme }} content-for-grouping animate-section animate--hidden {{ section.settings.visibility }}">
-  {% if section.settings.display_id %}
-    <copy-button class='section-id-btn button' data-content="#shopify-section-{{ section.id }}" data-success="false">
-      <span class="copy-text">Click to copy section ID</span>
-      <span class="copy-success">ID copied successfully!</span>
-    </copy-button>
-  {% endif %}
+<div class="color-{{ section.settings.color_scheme }}">
   <div class="page-width section-{{ section.id }}-padding">
-    <div class="content-rte center animate-item animate-item--child index-0">
-      {% assign content_index = 0 %}
-      {%- unless section.settings.title == blank -%}
-        {% assign content_index = 1 %}
-        <h2 class="{{ section.settings.heading_size }}">
+    {%- unless section.settings.title == blank -%}
+      <div class="title-wrapper-with-link title-wrapper--self-padded-mobile title-wrapper--no-top-margin{% if section.settings.text != blank %} multicolumn-title-with-text{% endif %}">
+        <h2 class="title {{ section.settings.heading_size }}">
           {{ section.settings.title | escape }}
         </h2>
-      {%- endunless -%}
-      {% if section.settings.text != blank %}
-        {% assign content_index = 1 %}
-        <div class="rte">
-          {{ section.settings.text }}
-        </div>
-      {% endif %}
-    </div>
-    <div class="pricing-table{% if content_index == 1 %} pricing-table--has-content{% endif %}">
+        {%- if section.settings.button_label != blank and show_mobile_slider -%}
+          <a href="{{ section.settings.button_link }}" class="link underlined-link large-up-hide">
+            {{- section.settings.button_label | escape -}}
+          </a>
+        {%- endif -%}
+      </div>
+    {%- endunless -%}
+    {% if section.settings.text != blank %}
+      <div class="multicolumn-text">
+        {{ section.settings.text }}
+      </div>
+    {% endif %}
+    <div class="pricing-table">
       {% for block in section.blocks %}
-        {% liquid
-          if block.settings.product != blank
-            assign index = block.settings.variant_index | minus: 1
-            assign chosen_variant = block.settings.product.variants[index]
-          endif
-          if block.settings.displayed_image == 'variant_image'
-            assign displayed_image = chosen_variant.featured_image
-          elsif block.settings.displayed_image == 'custom'
-            assign displayed_image = block.settings.custom_image
-          endif
-        %}
-        <div
-          class="plan-card plan-card-{{ block.settings.card_style }}{% if block.settings.displayed_image != 'hidden' %} plan-card--has-image{% endif %} color-{{ block.settings.color_scheme }} accent-{{ block.settings.accent_color }} animate-item animate-item--child"
-          style="--index:{{ forloop.index0 | plus: content_index }};"
-        >
+        <div class="plan-card plan-card-{{ block.settings.card_style }} color-{{ block.settings.color_scheme }} accent-{{ block.settings.accent_color }}">
           {% if block.settings.badge != blank %}
             <span class="plan-card__badge color-{{ block.settings.badge_color_scheme }}">
               {{ block.settings.badge }}
             </span>
           {% endif %}
           <div class="plan-card__top{% unless block.settings.card_style == 'style-1' %} color-{{ block.settings.accent_color }}{% endunless %}">
-            {% if displayed_image != blank %}
-              <div class='plan-card__image'>
-                {%- capture sizes -%}
-                  320px
-                {%- endcapture -%}
-                {{
-                  displayed_image
-                  | image_url: width: 1500
-                  | image_tag: loading: 'lazy', sizes: sizes, widths: '165, 360, 535, 750, 1070, 1500'
-                }}
-              </div>
-            {% endif %}
             {% unless block.settings.custom_icon == blank and block.settings.icon == 'none' %}
               <div class="plan-card__icon plan-card__icon--{{ section.settings.icon_size }}{% if block.settings.card_style == 'style-3' %} color-{{ block.settings.color_scheme }}{% endif %}">
                 {% if block.settings.custom_icon != blank %}
                   {{ block.settings.custom_icon | image_url: width: 600 | image_tag: loading: 'lazy', width: 500 }}
                 {% else %}
-                  {% render 'material-icon', icon: block.settings.icon, filled: block.settings.filled_icon %}
+                  {% render 'icon-accordion', icon: block.settings.icon %}
                 {% endif %}
               </div>
             {% endunless %}
@@ -94,9 +64,8 @@
             {% if block.settings.price != blank %}
               <div class="plan-card__price-container{% if block.settings.card_style == 'style-1' %} color-{{ block.settings.accent_color }}{% elsif block.settings.card_style == 'style-2' %} color-{{ block.settings.color_scheme }}{% endif %}">
                 <span class="plan-card__price">
-                  {% if chosen_variant != blank %}
-                    {% capture price_money %}{{ chosen_variant.price | money }}{% endcapture %}
-                    {{ block.settings.price | replace: '[price]', price_money }}
+                  {% if block.settings.display_price_as_currency %}
+                    {{ block.settings.price | times: 100.00 | money }}
                   {% else %}
                     {{ block.settings.price }}
                   {% endif %}
@@ -152,69 +121,17 @@
               {% endif %}
             {% endif %}
             {%- if block.settings.button_label != blank -%}
-              <div class="plan-card__btn">
-                {% if block.settings.button_function == 'link' %}
-                  <a
-                    {% if block.settings.link %}
-                      href="{{ block.settings.link }}"
-                    {% else %}
-                      role="link" aria-disabled="true"
-                    {% endif %}
-                    class="button color-{{ block.settings.accent_color }}{% if block.settings.button_style_secondary %} button--secondary{% else %} button--primary{% endif %}{% if block.settings.button_full_width %} button--full-width{% endif %}"
-                  >
-                    {{- block.settings.button_label | escape -}}
-                  </a>
-                {% else %}
-                  {% if block.settings.product != blank %}
-                    <product-form>
-                      {% assign product_form_id = 'section-product-form-'
-                        | append: section.id
-                        | append: block.id
-                      %}
-                      {% assign product = block.settings.product %}
-                      {%- form 'product',
-                        product,
-                        id: product_form_id,
-                        class: 'form',
-                        novalidate: 'novalidate',
-                        data-type: 'add-to-cart-form'
-                      -%}
-                        <input
-                          type="hidden"
-                          name="id"
-                          value="{{ chosen_variant.id }}"
-                          disabled
-                          class="product-variant-id"
-                        >
-                        <button
-                          type="submit"
-                          name="add"
-                          class="button color-{{ block.settings.accent_color }}{% if block.settings.button_style_secondary %} button--secondary{% else %} button--primary{% endif %}{% if block.settings.button_full_width %} button--full-width{% endif %}"
-                          {% if chosen_variant.available == false or chosen_variant.available == nil %}
-                            disabled
-                          {% endif %}
-                        >
-                          <span>
-                            {{- block.settings.button_label | escape -}}
-                          </span>
-                          <div class="loading-overlay__spinner hidden">
-                            <svg
-                              aria-hidden="true"
-                              focusable="false"
-                              class="spinner"
-                              viewBox="0 0 66 66"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
-                            </svg>
-                          </div>
-                        </button>
-                      {%- endform -%}
-                    </product-form>
+              <div class="plan-card__btn color-{{ block.settings.accent_color }}">
+                <a
+                  {% if block.settings.link %}
+                    href="{{ block.settings.link }}"
                   {% else %}
-                    <h4 class='h5 center'>Assign a product in block settings</h4>
+                    role="link" aria-disabled="true"
                   {% endif %}
-                {% endif %}
+                  class="button {% if block.settings.button_style_secondary %}button--secondary{% else %}button--primary{% endif %}{% if block.settings.button_full_width %} button--full-width{% endif %}"
+                >
+                  {{- block.settings.button_label | escape -}}
+                </a>
               </div>
             {%- endif -%}
           </div>
@@ -226,466 +143,551 @@
 
 {% schema %}
 {
-  "name": "Pricing table",
-  "settings": [
-    {
-      "type": "checkbox",
-      "id": "display_id",
-      "label": "Display section ID",
-      "info": "ID is used in the Sections group section to merge 2 sections. ID can also be put inside any button link and the button will scroll to this section.",
-      "default": false
-    },
-    {
-      "type": "select",
-      "id": "visibility",
-      "options": [
+    "name": "Pricing table",
+    "settings": [
         {
-          "value": "desktop-hidden",
-          "label": "Mobile only"
-        },
-        {
-          "value": "mobile-hidden",
-          "label": "Desktop only"
-        },
-        {
-          "value": "always-display",
-          "label": "All devices"
-        }
-      ],
-      "label": "Display on",
-      "default": "always-display"
-    },
-    {
-      "type": "header",
-      "content": "General"
-    },
-    {
-      "type": "text",
-      "id": "title",
-      "default": "Pricing table",
-      "label": "Heading"
-    },
-    {
-      "type": "select",
-      "id": "heading_size",
-      "options": [
-        {
-          "value": "h2",
-          "label": "t:sections.all.heading_size.options__1.label"
-        },
-        {
-          "value": "h1",
-          "label": "t:sections.all.heading_size.options__2.label"
-        },
-        {
-          "value": "h0",
-          "label": "t:sections.all.heading_size.options__3.label"
-        }
-      ],
-      "default": "h1",
-      "label": "t:sections.all.heading_size.label"
-    },
-    {
-      "type": "richtext",
-      "id": "text",
-      "label": "Text"
-    },
-    {
-      "type": "select",
-      "id": "icon_size",
-      "options": [
-        {
-          "value": "small",
-          "label": "Small"
-        },
-        {
-          "value": "medium",
-          "label": "Medium"
-        },
-        {
-          "value": "large",
-          "label": "Large"
-        }
-      ],
-      "default": "medium",
-      "label": "Icon Size"
-    },
-    {
-      "type": "select",
-      "id": "color_scheme",
-      "options": [
-        {
-          "value": "accent-1",
-          "label": "t:sections.all.colors.accent_1.label"
-        },
-        {
-          "value": "accent-2",
-          "label": "t:sections.all.colors.accent_2.label"
-        },
-        {
-          "value": "background-1",
-          "label": "t:sections.all.colors.background_1.label"
-        },
-        {
-          "value": "background-2",
-          "label": "t:sections.all.colors.background_2.label"
-        },
-        {
-          "value": "inverse",
-          "label": "t:sections.all.colors.inverse.label"
-        }
-      ],
-      "default": "background-1",
-      "label": "t:sections.all.colors.label"
-    },
-    {
-      "type": "header",
-      "content": "Desktop"
-    },
-    {
-      "type": "range",
-      "id": "desktop_spacing",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "Desktop spacing",
-      "default": 40
-    },
-    {
-      "type": "select",
-      "id": "cards_alignment",
-      "options": [
-        {
-          "value": "flex-start",
-          "label": "Top"
-        },
-        {
-          "value": "center",
-          "label": "Middle"
-        },
-        {
-          "value": "flex-end",
-          "label": "Bottom"
-        }
-      ],
-      "default": "flex-start",
-      "label": "Vertical alignment"
-    },
-    {
-      "type": "header",
-      "content": "t:sections.all.padding.section_padding_heading"
-    },
-    {
-      "type": "range",
-      "id": "padding_top",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.all.padding.padding_top",
-      "default": 36
-    },
-    {
-      "type": "range",
-      "id": "padding_bottom",
-      "min": 0,
-      "max": 100,
-      "step": 4,
-      "unit": "px",
-      "label": "t:sections.all.padding.padding_bottom",
-      "default": 36
-    }
-  ],
-  "blocks": [
-    {
-      "type": "plan",
-      "name": "Pricing plan",
-      "settings": [
-        {
-          "type": "header",
-          "content": "Product & variant"
-        },
-        {
-          "type": "product",
-          "id": "product",
-          "label": "Product"
-        },
-        {
-          "type": "number",
-          "id": "variant_index",
-          "label": "Displayed variant index",
-          "default": 1,
-          "info": "Use if you wish to use the section to display different variants of the same products as different cards."
-        },
-        {
-          "type": "header",
-          "content": "Card & content"
+            "type": "text",
+            "id": "title",
+            "default": "Pricing table",
+            "label": "Heading"
         },
         {
           "type": "select",
-          "id": "card_style",
+          "id": "heading_size",
           "options": [
             {
-              "value": "style-1",
-              "label": "Style 1"
+              "value": "h2",
+              "label": "t:sections.all.heading_size.options__1.label"
             },
             {
-              "value": "style-2",
-              "label": "Style 2"
+              "value": "h1",
+              "label": "t:sections.all.heading_size.options__2.label"
             },
             {
-              "value": "style-3",
-              "label": "Style 3"
+              "value": "h0",
+              "label": "t:sections.all.heading_size.options__3.label"
             }
           ],
-          "default": "style-1",
-          "label": "Card style"
-        },
-        {
-          "type": "select",
-          "id": "color_scheme",
-          "options": [
-            {
-              "value": "accent-1",
-              "label": "t:sections.all.colors.accent_1.label"
-            },
-            {
-              "value": "accent-2",
-              "label": "t:sections.all.colors.accent_2.label"
-            },
-            {
-              "value": "background-1",
-              "label": "t:sections.all.colors.background_1.label"
-            },
-            {
-              "value": "background-2",
-              "label": "t:sections.all.colors.background_2.label"
-            },
-            {
-              "value": "inverse",
-              "label": "t:sections.all.colors.inverse.label"
-            }
-          ],
-          "default": "background-1",
-          "label": "t:sections.all.colors.label"
-        },
-        {
-          "type": "select",
-          "id": "accent_color",
-          "options": [
-            {
-              "value": "accent-1",
-              "label": "t:sections.all.colors.accent_1.label"
-            },
-            {
-              "value": "accent-2",
-              "label": "t:sections.all.colors.accent_2.label"
-            },
-            {
-              "value": "background-1",
-              "label": "t:sections.all.colors.background_1.label"
-            },
-            {
-              "value": "background-2",
-              "label": "t:sections.all.colors.background_2.label"
-            },
-            {
-              "value": "inverse",
-              "label": "t:sections.all.colors.inverse.label"
-            }
-          ],
-          "default": "accent-1",
-          "label": "Accent color"
-        },
-        {
-          "type": "text",
-          "id": "badge",
-          "label": "Badge text"
-        },
-        {
-          "type": "select",
-          "id": "badge_color_scheme",
-          "options": [
-            {
-              "value": "accent-1",
-              "label": "t:sections.all.colors.accent_1.label"
-            },
-            {
-              "value": "accent-2",
-              "label": "t:sections.all.colors.accent_2.label"
-            },
-            {
-              "value": "background-1",
-              "label": "t:sections.all.colors.background_1.label"
-            },
-            {
-              "value": "background-2",
-              "label": "t:sections.all.colors.background_2.label"
-            },
-            {
-              "value": "inverse",
-              "label": "t:sections.all.colors.inverse.label"
-            }
-          ],
-          "default": "inverse",
-          "label": "Badge color scheme"
-        },
-        {
-          "type": "select",
-          "id": "displayed_image",
-          "options": [
-            {
-              "value": "hidden",
-              "label": "Hidden"
-            },
-            {
-              "value": "custom",
-              "label": "Custom"
-            },
-            {
-              "value": "variant_image",
-              "label": "Variant image"
-            }
-          ],
-          "default": "hidden",
-          "label": "Displayed image"
-        },
-        {
-          "type": "image_picker",
-          "id": "custom_image",
-          "label": "Custom image"
-        },
-        {
-          "type": "text",
-          "id": "title",
-          "label": "Title",
-          "default": "Plan"
-        },
-        {
-          "type": "text",
-          "id": "price",
-          "label": "Price text",
-          "default": "[price]",
-          "info": "Use [price] to display the price of the product (variant)"
-        },
-        {
-          "type": "text",
-          "id": "price_text",
-          "label": "Price caption",
-          "default": "a month"
-        },
-        {
-          "type": "text",
-          "id": "icon",
-          "default": "sell",
-          "label": "Icon",
-          "info": "[View all available icons](https:\/\/fonts.google.com\/icons?icon.set=Material+Symbols&icon.platform=web)."
-        },
-        {
-          "type": "checkbox",
-          "id": "filled_icon",
-          "default": false,
-          "label": "Filled icon"
-        },
-        {
-          "type": "image_picker",
-          "id": "custom_icon",
-          "label": "Custom icon"
-        },
-        {
-          "type": "text",
-          "id": "description",
-          "label": "Description"
-        },
-        {
-          "type": "select",
-          "id": "desc_alignment",
-          "label": "Description alignment",
-          "options": [
-            {
-              "value": "",
-              "label": "Left"
-            },
-            {
-              "value": "center",
-              "label": "Center"
-            },
-            {
-              "value": "right",
-              "label": "Right"
-            }
-          ],
-          "default": "center"
+          "default": "h1",
+          "label": "t:sections.all.heading_size.label"
         },
         {
           "type": "richtext",
-          "id": "benefits",
-          "label": "Benefits",
-          "default": "<p>Plan benefit,Plan benefit,Plan benefit,Plan benefit</p>",
-          "info": "Separate benefits with comma to display them as list"
+          "id": "text",
+          "label": "Text"
         },
         {
           "type": "select",
-          "id": "button_function",
+          "id": "icon_size",
           "options": [
             {
-              "value": "link",
-              "label": "Link"
+              "value": "small",
+              "label": "Small"
             },
             {
-              "value": "atc",
-              "label": "Add to Cart"
+              "value": "medium",
+              "label": "Medium"
+            },
+            {
+              "value": "large",
+              "label": "Large"
             }
           ],
-          "default": "link",
-          "label": "Button function"
+          "default": "medium",
+          "label": "Icon Size"
         },
         {
-          "type": "text",
-          "id": "button_label",
-          "label": "t:sections.slideshow.blocks.slide.settings.button_label.label",
-          "default": "Get started",
-          "info": "t:sections.slideshow.blocks.slide.settings.button_label.info"
+            "type": "select",
+            "id": "color_scheme",
+            "options": [
+            {
+                "value": "accent-1",
+                "label": "t:sections.all.colors.accent_1.label"
+            },
+            {
+                "value": "accent-2",
+                "label": "t:sections.all.colors.accent_2.label"
+            },
+            {
+                "value": "background-1",
+                "label": "t:sections.all.colors.background_1.label"
+            },
+            {
+                "value": "background-2",
+                "label": "t:sections.all.colors.background_2.label"
+            },
+            {
+                "value": "inverse",
+                "label": "t:sections.all.colors.inverse.label"
+            }
+            ],
+            "default": "background-1",
+            "label": "t:sections.all.colors.label"
         },
         {
-          "type": "url",
-          "id": "link",
-          "label": "t:sections.slideshow.blocks.slide.settings.link.label"
+          "type": "header",
+          "content": "Desktop"
         },
         {
-          "type": "checkbox",
-          "id": "button_style_secondary",
-          "label": "t:sections.slideshow.blocks.slide.settings.secondary_style.label",
-          "default": false
+          "type": "range",
+          "id": "desktop_spacing",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "Desktop spacing",
+          "default": 40
         },
         {
-          "type": "checkbox",
-          "id": "button_full_width",
-          "label": "Button full width",
-          "default": false
+          "type": "select",
+          "id": "cards_alignment",
+          "options": [
+            {
+              "value": "flex-start",
+              "label": "Top"
+            },
+            {
+              "value": "center",
+              "label": "Middle"
+            },
+            {
+              "value": "flex-end",
+              "label": "Bottom"
+            }
+          ],
+          "default": "flex-start",
+          "label": "Vertical alignment"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.all.padding.section_padding_heading"
+        },
+        {
+          "type": "range",
+          "id": "padding_top",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "t:sections.all.padding.padding_top",
+          "default": 36
+        },
+        {
+          "type": "range",
+          "id": "padding_bottom",
+          "min": 0,
+          "max": 100,
+          "step": 4,
+          "unit": "px",
+          "label": "t:sections.all.padding.padding_bottom",
+          "default": 36
         }
-      ]
-    }
-  ],
-  "presets": [
-    {
-      "name": "Pricing table",
-      "blocks": [
+    ],
+    "blocks": [
+      {
+        "type": "plan",
+        "name": "Pricing plan",
+        "settings": [
+          {
+            "type": "select",
+            "id": "card_style",
+            "options": [
+              {
+                "value": "style-1",
+                "label": "Style 1"
+              },
+              {
+                "value": "style-2",
+                "label": "Style 2"
+              },
+              {
+                "value": "style-3",
+                "label": "Style 3"
+              }
+            ],
+            "default": "style-1",
+            "label": "Card style"
+          },
+          {
+            "type": "text",
+            "id": "badge",
+            "label": "Badge text"
+          },
+          {
+              "type": "select",
+              "id": "badge_color_scheme",
+              "options": [
+              {
+                  "value": "accent-1",
+                  "label": "t:sections.all.colors.accent_1.label"
+              },
+              {
+                  "value": "accent-2",
+                  "label": "t:sections.all.colors.accent_2.label"
+              },
+              {
+                  "value": "background-1",
+                  "label": "t:sections.all.colors.background_1.label"
+              },
+              {
+                  "value": "background-2",
+                  "label": "t:sections.all.colors.background_2.label"
+              },
+              {
+                  "value": "inverse",
+                  "label": "t:sections.all.colors.inverse.label"
+              }
+              ],
+              "default": "inverse",
+              "label": "Badge color scheme"
+          },
+          {
+            "type": "text",
+            "id": "title",
+            "label": "Title",
+            "default": "Plan"
+          },
+          {
+            "type": "text",
+            "id": "price",
+            "label": "Price",
+            "default": "50"
+          },
+          {
+            "type": "checkbox",
+            "id": "display_price_as_currency",
+            "label": "Automatically display price as currency",
+            "default": true,
+            "info": "Turn this option off if your price contains text (eg \"CUSTOM\")"
+          },
+          {
+            "type": "text",
+            "id": "price_text",
+            "label": "Price text",
+            "default": "a month"
+          },
+          {
+            "type": "select",
+            "id": "icon",
+            "options": [
+              {
+                "value": "none",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__1.label"
+              },
+              {
+                "value": "apple",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__2.label"
+              },
+              {
+                "value": "banana",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__3.label"
+              },
+              {
+                "value": "bottle",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__4.label"
+              },
+              {
+                "value": "box",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__5.label"
+              },
+              {
+                "value": "carrot",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__6.label"
+              },
+              {
+                "value": "chat_bubble",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__7.label"
+              },
+              {
+                "value": "check_mark",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__8.label"
+              },
+              {
+                "value": "clipboard",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__9.label"
+              },
+              {
+                "value": "dairy",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__10.label"
+              },
+              {
+                "value": "dairy_free",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__11.label"
+              },
+              {
+                "value": "dryer",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__12.label"
+              },
+              {
+                "value": "eye",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__13.label"
+              },
+              {
+                "value": "fire",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__14.label"
+              },
+              {
+                "value": "gluten_free",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__15.label"
+              },
+              {
+                "value": "heart",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__16.label"
+              },
+              {
+                "value": "iron",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__17.label"
+              },
+              {
+                "value": "leaf",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__18.label"
+              },
+              {
+                "value": "leather",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__19.label"
+              },
+              {
+                "value": "lightning_bolt",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__20.label"
+              },
+              {
+                "value": "lipstick",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__21.label"
+              },
+              {
+                "value": "lock",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__22.label"
+              },
+              {
+                "value": "map_pin",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__23.label"
+              },
+              {
+                "value": "nut_free",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__24.label"
+              },
+              {
+                "value": "pants",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__25.label"
+              },
+              {
+                "value": "paw_print",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__26.label"
+              },
+              {
+                "value": "pepper",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__27.label"
+              },
+              {
+                "value": "perfume",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__28.label"
+              },
+              {
+                "value": "plane",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__29.label"
+              },
+              {
+                "value": "plant",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__30.label"
+              },
+              {
+                "value": "price_tag",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__31.label"
+              },
+              {
+                "value": "question_mark",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__32.label"
+              },
+              {
+                "value": "recycle",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__33.label"
+              },
+              {
+                "value": "return",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__34.label"
+              },
+              {
+                "value": "ruler",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__35.label"
+              },
+              {
+                "value": "serving_dish",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__36.label"
+              },
+              {
+                "value": "shirt",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__37.label"
+              },
+              {
+                "value": "shoe",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__38.label"
+              },
+              {
+                "value": "silhouette",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__39.label"
+              },
+              {
+                "value": "snowflake",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__40.label"
+              },
+              {
+                "value": "star",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__41.label"
+              },
+              {
+                "value": "stopwatch",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__42.label"
+              },
+              {
+                "value": "truck",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__43.label"
+              },
+              {
+                "value": "washing",
+                "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.options__44.label"
+              }
+            ],
+            "default": "price_tag",
+            "label": "t:sections.main-product.blocks.collapsible_tab.settings.icon.label"
+          },
+          {
+            "type": "image_picker",
+            "id": "custom_icon",
+            "label": "Custom icon"
+          },
+          {
+            "type": "text",
+            "id": "button_label",
+            "label": "t:sections.slideshow.blocks.slide.settings.button_label.label",
+            "default": "Get started",
+            "info": "t:sections.slideshow.blocks.slide.settings.button_label.info"
+          },
+          {
+            "type": "url",
+            "id": "link",
+            "label": "t:sections.slideshow.blocks.slide.settings.link.label"
+          },
+          {
+            "type": "checkbox",
+            "id": "button_style_secondary",
+            "label": "t:sections.slideshow.blocks.slide.settings.secondary_style.label",
+            "default": false
+          },
+          {
+            "type": "checkbox",
+            "id": "button_full_width",
+            "label": "Button full width",
+            "default": false
+          },
+          {
+            "type": "text",
+            "id": "description",
+            "label": "Description"
+          },
+          {
+            "type": "select",
+            "id": "desc_alignment",
+            "label": "Description alignment",
+            "options": [
+              {
+                "value": "",
+                "label": "Left"
+              },
+              {
+                "value": "center",
+                "label": "Center"
+              },
+              {
+                "value": "right",
+                "label": "Right"
+              }
+            ],
+            "default": "center"
+          },
+          {
+            "type": "richtext",
+            "id": "benefits",
+            "label": "Benefits",
+            "default": "<p>Plan benefit,Plan benefit,Plan benefit,Plan benefit</p>",
+            "info": "Separate benefits with comma to display them as list"
+          },
+          {
+              "type": "select",
+              "id": "color_scheme",
+              "options": [
+              {
+                  "value": "accent-1",
+                  "label": "t:sections.all.colors.accent_1.label"
+              },
+              {
+                  "value": "accent-2",
+                  "label": "t:sections.all.colors.accent_2.label"
+              },
+              {
+                  "value": "background-1",
+                  "label": "t:sections.all.colors.background_1.label"
+              },
+              {
+                  "value": "background-2",
+                  "label": "t:sections.all.colors.background_2.label"
+              },
+              {
+                  "value": "inverse",
+                  "label": "t:sections.all.colors.inverse.label"
+              }
+              ],
+              "default": "background-1",
+              "label": "t:sections.all.colors.label"
+          },
+          {
+              "type": "select",
+              "id": "accent_color",
+              "options": [
+              {
+                  "value": "accent-1",
+                  "label": "t:sections.all.colors.accent_1.label"
+              },
+              {
+                  "value": "accent-2",
+                  "label": "t:sections.all.colors.accent_2.label"
+              },
+              {
+                  "value": "background-1",
+                  "label": "t:sections.all.colors.background_1.label"
+              },
+              {
+                  "value": "background-2",
+                  "label": "t:sections.all.colors.background_2.label"
+              },
+              {
+                  "value": "inverse",
+                  "label": "t:sections.all.colors.inverse.label"
+              }
+              ],
+              "default": "accent-1",
+              "label": "Accent color"
+          }
+        ]
+      }
+    ],
+    "presets": [
         {
-          "type": "plan"
-        },
-        {
-          "type": "plan"
-        },
-        {
-          "type": "plan"
+          "name": "Pricing table",
+          "blocks": [
+            {
+              "type": "plan"
+            },
+            {
+              "type": "plan"
+            },
+            {
+              "type": "plan"
+            }
+          ]
         }
-      ]
+    ],
+    "disabled_on": {
+        "groups": ["header", "footer"]
     }
-  ],
-  "disabled_on": {
-    "groups": ["header", "footer"]
-  }
 }
 {% endschema %}
